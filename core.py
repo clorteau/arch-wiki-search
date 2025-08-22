@@ -35,6 +35,8 @@ class Core:
                 print(traceback.format_exc())
             sys.exit(-3)
 
+        await self.cachingproxy.printcachesize()
+
     async def search(self, search_term = ''):
         url_path = ''
         if search_term != '':
@@ -66,18 +68,9 @@ class Core:
     async def stop(self):
         self._stop = True
         await self.cachingproxy.stop()
+        await self.cachingproxy.printcachesize()
 
-    async def wait(self):
-        """keep main thread active and proxy running in separate thread until told to stop
-        TODO: condition to stop
-        """
-        try:
-            await self._sleep()
-        except KeyboardInterrupt:
-            logger.info('Stopping')
-            await self.stop()
-
-    async def _sleep(self, secs=2):
+    async def wait(self, secs=0):
         """Sleep and check for stop condition every X seconds
         TODO: proper stop condition
         """

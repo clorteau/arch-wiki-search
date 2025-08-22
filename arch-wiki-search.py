@@ -14,20 +14,24 @@ License: MIT
 #TODO: github feature request template to add new wikis
 #TODO: arg to change number of days before cache expiry
 #TODO: options to export and import cache
-#TODO: show space used by cache
 #TODO: readme
+#TODO: call browser in separate thread when not on graphical interface as that code will be blocking then
 
 import sys
 import asyncio
 import argparse
 
-from __init__ import __version__, __url__, __newwikirequesturl__
+from __init__ import __version__, __url__, __newwikirequesturl__, logger
 from core import Core
 
 async def main():
     await core.start()
-    await core.search(search)
-    await core.wait()
+    try:
+        await core.search(search)
+        await core.wait()
+    except asyncio.CancelledError:
+        print('')
+        logger.info('Stopping')
     await core.stop()
 
 if __name__ == '__main__':
@@ -44,8 +48,9 @@ if __name__ == '__main__':
                          help='Don\'t try to go online, only used cached copy if it exists')
     parser.add_argument('--refresh', default=False, action='store_true',
                         help='Force going online and refresh the cache')
-    parser.add_argument('-c', '--conv', default='raw', #TODO: respect formatting
+    parser.add_argument('-c', '--conv', default='raw',
                         choices=['raw', 'md', 'txt'],
+                        #TODO: respect formatting
                         help='conversion mode:\n \
                               \traw: no conversion\n \
                               \tmd: convert to markdown\n \
@@ -81,6 +86,7 @@ if __name__ == '__main__':
                 debug=args.debug
                 )
 
-    asyncio.run(main())
-    
-    
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass #exception CancelledError will be caught in main

@@ -7,10 +7,12 @@ License: MIT
 import os
 import sys
 import logging
+import asyncio
 import converters
 import traceback
-from aiohttp import web, DummyCookieJar
 from datetime import timedelta
+from aiohttp import web, DummyCookieJar
+from concurrent.futures import ThreadPoolExecutor
 from aiohttp_client_cache import CachedSession, FileBackend
 from __init__ import __name__, logger
 
@@ -30,28 +32,28 @@ class CachingProxy:
     def _hsize(self, size):
         for unit in ['B', 'KB', 'MB', 'GB']:
             if size < 1024:
-                return f"{size:.2f} {unit}"
-        size /= 1024
+                return f"{size:.2f}{unit}"
+            size /= 1024
 
     async def _printcachesize(self):
-        def _printdirsize(path):
+        def _dirsize(path):
             size = 0
             for dirpath, dirnames, filenames in os.walk(path):
                 for f in filenames:
                     fp = os.path.join(dirpath, f)
                     size += os.path.getsize(fp)
-            logger.info(f'Cache size:{self._hsize(size)}')
+            return size
+        # run above blocking code asynchronously on executor
+        loop = asyncio.get_running_loop()
+        with ThreadPoolExecutor() as executor:
+            result = await loop.run_in_executor(executor, _dirsize, self.cache_dir)
+            logger.info(f'Cache size: {self._hsize(result)}')
 
-        coro = asyncio.to_thread(_printdirsize(self.cache_dir))
-        task = asyncio.create_task(coro)
-        await asyncio.sleep(0)
-        await task
-
-    def printcachesize(self):
+    async def printcachesize(self):
         """Asynchronously calculate total cache size and output in human readable format
         """
         assert self.cache_dir != ''
-        asyncio.run(self._printcachesize())
+        await self._printcachesize()
     
     async def start(self):
         assert self.cache != None            
@@ -110,7 +112,7 @@ class CachingProxy:
         await newresponse.prepare(request)
         return newresponse
 
-    def __init__(self, base_url, cache_dir='', expire_days=8, debug=False):
+    def __init__(self, base_url, cache_dir='', expire_days=30, debug=False):
         self.base_url = base_url
         self.expire_days = expire_days
         self.cache_dir = cache_dir
@@ -152,7 +154,5 @@ class CachingProxy:
                              308, #permanent redirect
                             ),
         )
-
-        # self.printcachesize()
 
         
