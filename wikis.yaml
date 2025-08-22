@@ -5,3 +5,15 @@ searchstring: '/index.php?search='
 name: wikipedia
 url: 'https://wikipedia.org'
 searchstring: '/wiki/Special:Search?go=Go&search=\'
+---
+name: discovery
+url: 'https://discovery.endeavouros.com'
+searchstring: '/?s='
+---
+name: manjarowiki
+url: 'https://wiki.manjaro.org/index.php'
+searchstring: '?title=Special%3ASearch&search='
+---
+name: fedorawiki
+url: 'https://fedoraproject.org'
+searchstring: '/w/index.php?title=Special%3ASearch&search='
