@@ -25,11 +25,11 @@ class CustomFormatter(logging.Formatter):
     fields = ' %(message)s'
 
     FORMATS = {
-        logging.DEBUG: grey + '🡪' + fields + reset,
+        logging.DEBUG: grey + fields + reset,
         logging.INFO: green + '🡪' + fields + reset,
         logging.WARNING: yellow + '⚠' + fields + reset,
         logging.ERROR: red + '✖' + fields + reset,
-        logging.CRITICAL: bold_red + '✖' + fields + reset
+        logging.CRITICAL: bold_red + '✖✖' + fields + reset
     }
 
     def format(self, record):

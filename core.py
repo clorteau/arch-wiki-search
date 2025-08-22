@@ -11,6 +11,7 @@ import traceback
 import webbrowser
 import urllib.parse
 from cachingproxy import CachingProxy
+from concurrent.futures import ThreadPoolExecutor
 from __init__ import __name__, logger
 
 class Core:
@@ -43,6 +44,17 @@ class Core:
             url_path = self.search_parm + urllib.parse.quote_plus(search_term)
         await self._go(url_path)
 
+    def _openbrowser(self, url):
+        try:
+            webbrowser.open(url)
+        except Exception as e:
+            logger.error(f'Failed to start browser: {e}')
+            if self.debug:
+                print(traceback.format_exc())
+        else:
+            self.current_url = url
+            logger.debug('Calling browser')
+
     async def _go (self, url_path):
         if (not self.base_url.startswith(('http://', 'https://'))):
             err = f'Unsupported url: {self.base_url}'
@@ -55,22 +67,19 @@ class Core:
         #retrieve and if needed cache the requested page before the browser is called
         await self.cachingproxy.fetch(url_path)
 
-        try:
-            webbrowser.open(f'http://localhost:{self.cachingproxy.port}/{dest_url}')
-        except Exception as e:
-            logger.error(f'Failed to start browser: {e}')
-            if self.debug:
-                print(traceback.format_exc())
-        else:
-            self.current_url = dest_url
-            logger.debug('Calling browser')
-
+        #open browser asynchronously as otherwise the code would be blocking when there's no graphical
+        #environment
+        loop = asyncio.get_running_loop()
+        with ThreadPoolExecutor() as executor:
+            result = await loop.run_in_executor(executor,
+                self._openbrowser, f'http://localhost:{self.cachingproxy.port}/{dest_url}')
+        
     async def stop(self):
         self._stop = True
         await self.cachingproxy.stop()
         await self.cachingproxy.printcachesize()
 
-    async def wait(self, secs=0):
+    async def wait(self, secs=2):
         """Sleep and check for stop condition every X seconds
         TODO: proper stop condition
         """

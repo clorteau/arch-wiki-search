@@ -15,7 +15,6 @@ License: MIT
 #TODO: arg to change number of days before cache expiry
 #TODO: options to export and import cache
 #TODO: readme
-#TODO: call browser in separate thread when not on graphical interface as that code will be blocking then
 
 import sys
 import asyncio
