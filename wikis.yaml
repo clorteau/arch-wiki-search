@@ -17,3 +17,7 @@ searchstring: '?title=Special%3ASearch&search='
 name: fedorawiki
 url: 'https://fedoraproject.org'
 searchstring: '/w/index.php?title=Special%3ASearch&search='
+---
+name: pythonwiki
+url: 'https://wiki.python.org/moin'
+searchstring: '/FrontPage?action=fullsearch&context=180&value=test&titlesearch=Titles'

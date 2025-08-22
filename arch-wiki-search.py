@@ -20,8 +20,9 @@ import sys
 import asyncio
 import argparse
 
-from __init__ import __version__, __url__, __newwikirequesturl__, logger
 from core import Core
+from wikis import Wikis
+from __init__ import __version__, __url__, __newwikirequesturl__, logger
 
 async def main():
     await core.start()
@@ -34,6 +35,8 @@ async def main():
     await core.stop()
 
 if __name__ == '__main__':
+    knownwikis = Wikis()
+
     format_blue_underline = '\033[4;34m'
     format_reset = '\033[0m'
     parser = argparse.ArgumentParser(
