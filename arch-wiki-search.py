@@ -5,12 +5,8 @@
 License: MIT
 """
 
-#TODO: cache files on online access
 #TODO: convert html to text and markdown
 #TODO: alternate browser
-#TODO: read from local copy (arch-wiki-docs, offer to install)
-#TODO: support other wikis
-#TODO: package pywebcopy
 #TODO: conv = cleanhtml - custom css to clean up the page
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
