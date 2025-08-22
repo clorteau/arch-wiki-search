@@ -1,4 +1,9 @@
-#!/bin/env python3
+# -*- coding: utf-8 -*-
+
+""" arch-wiki-search (c) Clem Lorteau 2025
+License: MIT
+"""
+
 import sys
 import logging
 import asyncio
@@ -9,6 +14,8 @@ from cachingproxy import CachingProxy
 from __init__ import __name__, logger
 
 class Core:
+    """Manages the caching proxy in async context and launches the appropriate browser
+    """
     base_url = ''
     search_parm = ''
     current_url = ''

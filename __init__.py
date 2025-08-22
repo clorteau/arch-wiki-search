@@ -1,11 +1,18 @@
-#!/bin/env python3
+# -*- coding: utf-8 -*-
 
-import logging
+""" arch-wiki-search (c) Clem Lorteau 2025
+License: MIT
+"""
 
 __version__ = '20250819'
 __name__ = 'arch-wiki-search'
+__author__ = 'Clem Lorteau'
+__license__ = 'MIT'
+
 __url__ = 'https://github.com/clorteau/arch-wiki-search'
 __newwikirequesturl__ = 'https://#TODO'
+
+import logging
 
 class CustomFormatter(logging.Formatter):
     grey = '\x1b[38;20m'

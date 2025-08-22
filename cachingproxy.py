@@ -1,8 +1,13 @@
-#!/bin/sh
+# -*- coding: utf-8 -*-
+
+""" arch-wiki-search (c) Clem Lorteau 2025
+License: MIT
+"""
 
 import os
 import sys
 import logging
+import converters
 import traceback
 from aiohttp import web, DummyCookieJar
 from datetime import timedelta
@@ -65,6 +70,8 @@ class CachingProxy:
         await self.runner.cleanup()
 
     async def fetch(self, urlpath):
+        """Retrieves contents at base_url/urlpath
+        """
         #TODO: pre-cache one-level of links
         url = self.base_url + urlpath
         resp = None
@@ -89,6 +96,8 @@ class CachingProxy:
         return resp
 
     async def _get_handler(self, request):
+        """Fetches the requested page, manipulates it and responds with it
+        """
         logger.debug(f'Got request: {request}')
 
         #the full URL to fetch is passed as the request's path; extract the target path
@@ -97,13 +106,7 @@ class CachingProxy:
         path = url.replace(self.base_url, '')
 
         response = await self.fetch(path)
-        #TODO: manipulate response (rewrite links, conversions...)
-        text = await response.text() #FIXME: throws exception when trying to get a png
-        newresponse = web.Response(
-            text=text,
-            status = response.status,
-            content_type=response.content_type
-        )
+        newresponse = await converters.RawConverter.convert(response, self.base_url, self.port)
         await newresponse.prepare(request)
         return newresponse
 

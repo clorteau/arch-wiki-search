@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+""" arch-wiki-search (c) Clem Lorteau 2025
+License: MIT
+"""
+
 #TODO: cache files on online access
 #TODO: convert html to text and markdown
 #TODO: alternate browser
@@ -13,6 +19,7 @@
 #TODO: arg to change number of days before cache expiry
 #TODO: options to export and import cache
 #TODO: show space used by cache
+#TODO: readme
 
 import sys
 import asyncio
