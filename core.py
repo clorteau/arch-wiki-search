@@ -13,6 +13,7 @@ import urllib.parse
 from cachingproxy import CachingProxy
 from concurrent.futures import ThreadPoolExecutor
 from __init__ import __name__, logger
+import wikis
 
 class Core:
     """Manages the caching proxy in async context and launches the appropriate browser
@@ -86,14 +87,26 @@ class Core:
         while not self._stop:
             await asyncio.sleep(secs)
 
-    def __init__(self, base_url = 'https://wiki.archlinux.org',
-                 search_parm = '/index.php?search=',
-                 alt_browser = '', conv = 'raw',
-                 offline=False, refresh=False, debug=False):
-        if not base_url.endswith('/'):
-            base_url += '/' #so relative links work
-        self.base_url = base_url
-        self.search_parm = search_parm
+    def __init__(self, knownwikis,
+                 base_url=None, search_parm=None,
+                 alt_browser='', conv='raw', wiki='archwiki',
+                 offline=False, refresh=False, debug=False, ):
+        """base_url (option -u) will override -wiki.url
+        search_parm (option -s) will override -wiki.searchstring
+        """
+        assert knownwikis
+        for w in knownwikis:
+            if w.name == wiki:
+                self.base_url = w.url
+                self.search_parm = w.searchstring
+                break
+
+        if base_url:
+            if not base_url.endswith('/'):
+                base_url += '/' #so relative links work
+            self.base_url = base_url
+        if search_parm:
+            self.search_parm = search_parm
         self.conv = conv
         self.offline = offline
         self.refresh = refresh

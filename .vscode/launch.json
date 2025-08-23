@@ -4,7 +4,7 @@
             "name": "arch-wiki-search with args",
             "type": "debugpy",
             "request": "launch",
-            "program": "${fileDirnameBasename}/arch-wiki-search.py",
+            "program": "arch-wiki-search.py",
             "console": "integratedTerminal",
             "args": "${command:pickArgs}"
         }

@@ -5,6 +5,7 @@ License: MIT
 """
 
 import os
+import yaml
 from __init__ import __name__, logger
 
 class Wiki:
@@ -20,6 +21,12 @@ class Wiki:
 class Wikis(set):
     filename = ''
     dirs = []
+
+    def getnames(self):
+        names = []
+        for i, w in enumerate(self):
+            names.append(w.name)
+        return sorted(names)
 
     def __init__(self, filename='wikis.yaml'):
         self.filename = filename
