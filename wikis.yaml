@@ -29,3 +29,7 @@ searchstring: '/FrontPage?action=fullsearch&value='
 name: slackdocs
 url: 'https://docs.slackware.com'
 searchstring: '/?do=search&q='
+---
+name: symbolsdb
+url: 'https://symbolsdb.com/text-symbols'
+searchstring: ''#TODO: http://google.com/search?q=rsa+fluhrer+response&btnI
