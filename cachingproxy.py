@@ -133,7 +133,7 @@ class CachingProxy:
                 logger.debug(f'The cache directory {self.cache_dir} exists and is writable')
             else:
                 err = f'The cache directory {self.cache_dir} is not writable'
-                logger.error(err)
+                logger.critical(err)
                 print(traceback.format_exc())
                 sys.exit(-4)
         else:
@@ -141,7 +141,7 @@ class CachingProxy:
                 os.makedirs(self.cache_dir)
                 logger.info(f'Created cache directory {self.cache_dir}')
             except Exception as e:
-                logger.error(f'Failed to create cache directory {self.cache_dir}')
+                logger.critical(f'Failed to create cache directory {self.cache_dir}')
                 print(traceback.format_exc())
                 sys.exit(-4)
 
