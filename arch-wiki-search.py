@@ -14,6 +14,7 @@ License: MIT
 #TODO: arg to change number of days before cache expiry
 #TODO: options to export and import cache
 #TODO: readme
+#TODO: prompt while serving to search other terms
 
 import sys
 import asyncio
@@ -49,20 +50,14 @@ if __name__ == '__main__':
         description = f'''Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text 
 
 Examples:
-    {format_yellow}🡪 {format_reset}{sys.argv[0]} \"installation instructions\"{format_reset}
+    {format_yellow}🡪 {format_reset}{sys.argv[0]} \"installation guide\"{format_reset}
     {format_yellow}🡪 {format_reset}{sys.argv[0]} --wiki=wikipedia \"MIT license\"{format_reset}''',
         epilog = f'''Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a \'{knownwikis.filename}\' file in \'{knownwikis.dirs[0]}\' and \'{knownwikis.dirs[1]}\'
 Github: 🌐{format_blue_underline}{__url__}{format_reset}
 Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{format_reset}''',
-        formatter_class = argparse.RawDescriptionHelpFormatter,
+        formatter_class = argparse.RawTextHelpFormatter,
     )
-    parser.add_argument('-c', '--conv', default='raw',
-                        choices=['raw', 'md', 'txt'],
-                        help='conversion mode:\n \
-                              \traw: no conversion\n \
-                              \tmd: convert to markdown\n \
-                              \ttxt: convert to plain text')
     parser.add_argument('-w', '--wiki', default='archwiki',
                          help='Load a known wiki by name (ex: --wiki=wikipedia) [Default: archwiki]',
                          choices=knownwikis.getnames())
@@ -75,8 +70,16 @@ Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{form
     parser.add_argument('-b', '--browser',
         help='browser to use instead of user\'s default (ex: \'elinks\', \'firefox\')',
         default=None, type=str)
+    parser.add_argument('-c', '--conv', default='raw',
+                        choices=['raw', 'md', 'txt'],
+                        help='''conversion mode:
+raw: no conversion (but still remove binaries)
+clean: convert to simple html (basic formatting, no styles or scripts or non-svg images)
+txt: convert to plain text
+[Default: \'raw\' in graphical environment, \'clean\' otherwise]
+⚠ Switching filters for already cached content requires clearing cache''',)
     parser.add_argument('--offline', '--test', default=False, action='store_true',
-                         help='Don\'t try to go online, only used cached copy if it exists')
+                         help='Don\'t try to go online, only use cached copy if it exists')
     parser.add_argument('--refresh', default=False, action='store_true',
                         help='Force going online and refresh the cache')
     parser.add_argument('-v', '--version', default=False, action='store_true',
