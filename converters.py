@@ -4,6 +4,7 @@
 License: MIT
 """
 
+import lxml_html_clean
 from aiohttp import web
 from aiohttp_client_cache import CachedResponse
 from __init__ import logger
@@ -24,15 +25,18 @@ class RawConverter:
 
         text = None
         try:
+            #never called when in cache, applying different filter requires clearing cache
             text = await response.text()
         except Exception as e:
             #could not decode as text, send empty response
             #svgs will go through, not pngs or jpegs
-            #TODO: don't download them in the first place
+            #FIXME: decide on this
             newresponse = web.Response(
                 status = response.status,
                 content_type = response.content_type
             )
+
+
         
         newresponse = web.Response(
             text = text,
@@ -41,3 +45,11 @@ class RawConverter:
         )
         
         return newresponse
+
+class CleanHTMLConverter(RawConverter):
+    @staticmethod
+    def _convert_links(text, base_url, port):
+            """Cleans up javascript, styles and excessive formattive
+            """
+            text = RawConverter._convert_links(text, base_url, port)
+            text = lxml.html.clean.clean_html(text)

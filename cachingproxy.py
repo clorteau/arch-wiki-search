@@ -75,11 +75,22 @@ class CachingProxy:
         """Retrieves contents at base_url/urlpath
         """
         #TODO: pre-cache one-level of links
-        url = self.base_url + urlpath
+        url = self.base_url + '/' + urlpath
         resp = None
         ignore_cookies = DummyCookieJar()
         async with CachedSession(cache=self.cache, cookie_jar=ignore_cookies) as session:
             try:
+                """FIXME on empty cache
+    Exception has occurred: ProgrammingError
+Cannot operate on a closed database.
+  File "/home/northernlights/git/archwikisearch/cachingproxy.py", line 83, in fetch
+    resp = await session.get(f'{url}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/northernlights/git/archwikisearch/cachingproxy.py", line 110, in _get_handler
+    response = await self.fetch(path)
+  File "/home/northernlights/git/archwikisearch/arch-wiki-search.py", line 111, in <module>
+    asyncio.run(main())
+sqlite3.ProgrammingError: Cannot operate on a closed database."""
                 resp = await session.get(f'{url}')
             except Exception as e:
                 msg = f'Failed to fetch URL: {url}'
@@ -97,7 +108,7 @@ class CachingProxy:
         
         return resp
 
-    async def _get_handler(self, request):
+    async def _get_handler(self, request, ):
         """Fetches the requested page, manipulates it and responds with it
         """
         logger.debug(f'Got request: {request}')
@@ -108,7 +119,8 @@ class CachingProxy:
         path = url.replace(self.base_url, '')
 
         response = await self.fetch(path)
-        newresponse = await converters.RawConverter.convert(response, self.base_url, self.port)
+        #newresponse = await converters.RawConverter.convert(response, self.base_url, self.port)
+        newresponse = await converters.CleanHTMLConverter.convert(response, self.base_url, self.port)
         await newresponse.prepare(request)
         return newresponse
 
