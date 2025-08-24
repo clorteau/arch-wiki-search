@@ -4,3 +4,4 @@ aiosqlite
 aiodns
 aiohttp
 lxml_html_clean
+beautifulsoup4
