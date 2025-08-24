@@ -120,7 +120,8 @@ sqlite3.ProgrammingError: Cannot operate on a closed database."""
 
         response = await self.fetch(path)
         #newresponse = await converters.RawConverter.convert(response, self.base_url, self.port)
-        newresponse = await converters.CleanHTMLConverter.convert(response, self.base_url, self.port)
+        converter = converters.CleanHTMLConverter(response, self.base_url, self.port)
+        newresponse = await converter.convert()
         await newresponse.prepare(request)
         return newresponse
 
