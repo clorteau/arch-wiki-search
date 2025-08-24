@@ -119,17 +119,25 @@ sqlite3.ProgrammingError: Cannot operate on a closed database."""
         path = url.replace(self.base_url, '')
 
         response = await self.fetch(path)
-        #newresponse = await converters.RawConverter.convert(response, self.base_url, self.port)
-        converter = converters.CleanHTMLConverter(response, self.base_url, self.port)
+        if self.conv == 'raw':
+            converter = converters.RawConverter(response, self.base_url, self.port)
+        elif self.conv == 'clean':
+            converter = converters.CleanHTMLConverter(response, self.base_url, self.port)
+        elif self.conv == 'txt':
+            converter = converters.TxtConverter(response, self.base_url, self.port)
+        else:
+            #TODO: detect if running in graphical envrionment or console
+            converter = converters.RawConverter(response, self.base_url, self.port)
         newresponse = await converter.convert()
         await newresponse.prepare(request)
         return newresponse
 
-    def __init__(self, base_url, cache_dir='', expire_days=30, debug=False):
+    def __init__(self, base_url, cache_dir='', expire_days=30, debug=False, conv=''):
         self.base_url = base_url
         self.expire_days = expire_days
         self.cache_dir = cache_dir
         self.debug = debug
+        self.conv = conv
 
         if (not self.base_url.startswith(('http://', 'https://'))):
             err = f'Unsupported url: {self.base_url}'

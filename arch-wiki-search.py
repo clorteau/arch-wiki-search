@@ -64,20 +64,17 @@ Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{form
     parser.add_argument('-u', '--url', default=None,
                          help='URL of wiki to browse (ex: https://wikipedia.org, https://wiki.freebsd.org)')
     parser.add_argument('-s', '--searchstring', default=None,
-                         help='alternative search string \
-                               (ex: \"/wiki/Special:Search?go=Go&search=\", \
-                               \"/FrontPage?action=fullsearch&value=\")')
+                         help='alternative search string (ex: \"/wiki/Special:Search?go=Go&search=\", \"/FrontPage?action=fullsearch&value=\")')
     parser.add_argument('-b', '--browser',
         help='browser to use instead of user\'s default (ex: \'elinks\', \'firefox\')',
         default=None, type=str)
-    parser.add_argument('-c', '--conv', default='raw',
-                        choices=['raw', 'md', 'txt'],
+    parser.add_argument('-c', '--conv', default=None,
+                        choices=['raw', 'clean', 'txt'],
                         help='''conversion mode:
 raw: no conversion (but still remove binaries)
-clean: convert to simple html (basic formatting, no styles or scripts or non-svg images)
+clean: convert to simple html (basic formatting, no styles or scripts)
 txt: convert to plain text
-[Default: \'raw\' in graphical environment, \'clean\' otherwise]
-⚠ Switching filters for already cached content requires clearing cache''',)
+[Default: \'raw\' in graphical environment, \'clean\' otherwise]''',)
     parser.add_argument('--offline', '--test', default=False, action='store_true',
                          help='Don\'t try to go online, only use cached copy if it exists')
     parser.add_argument('--refresh', default=False, action='store_true',

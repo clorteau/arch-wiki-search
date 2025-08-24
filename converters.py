@@ -4,10 +4,13 @@
 License: MIT
 """
 
+import warnings
+import html5lib
+import html2text
 import lxml_html_clean
 from aiohttp import web
 from aiohttp_client_cache import CachedResponse
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 from __init__ import logger
 
 class RawConverter:
@@ -26,9 +29,44 @@ class RawConverter:
         self.response = response  
         self.newresponse = newresponse
 
+    async def convert(self):
+        try:
+            self.text = await self.response.text()
+        except Exception as e:
+            msg = 'Error reading response from server: ' + str(e)
+            logger.warning(msg)
+            self.newresponse.text = msg
+            return self.newresponse
+        self.text = self._links_to_local()
+        self.newresponse.text = self.text
+        return self.newresponse
+
 class CleanHTMLConverter(RawConverter):
     async def convert(self):
-        """Cleans up javascript, styles and excessive formattive
+        """Cleans up javascript, styles and excessive formattive format
+        """
+        warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+        try:
+            self.text = await self.response.text()
+        except Exception as e:
+            msg = 'Error reading response from server: ' + str(e)
+            logger.warning(msg)
+            self.newresponse.text = msg
+            return self.newresponse
+        self.text = super()._links_to_local()
+        try:
+            soup = BeautifulSoup(self.text, 'lxml')
+        except XMLParsedAsHTMLWarning:
+            soup = BeautifulSoup(self.text, 'html5lib')
+        for tag in soup.find_all('script', 'iframe', 'frame', 'style'):
+            tag.decompose()
+        self.text = soup.prettify()  # better formatting
+        self.newresponse.text = self.text
+        return self.newresponse
+
+class TxtConverter(RawConverter):
+    async def convert(self):
+        """Only keeps text
         """
         try:
             self.text = await self.response.text()
@@ -37,21 +75,15 @@ class CleanHTMLConverter(RawConverter):
             logger.warning(msg)
             self.newresponse.text = msg
             return self.newresponse
-        
-        self.text = self._links_to_local() 
-        #self.text = lxml_html_clean.clean_html(self.text)
-         # Parse the HTML content
-        soup = BeautifulSoup(self.text, features='xml')
-        # Remove <script> tags
-        for script in soup.find_all('script'):
-            script.decompose()
-        # Remove <iframe> and <frame> tags
-        for frame in soup.find_all(['iframe', 'frame']):
-            frame.decompose()
-        # Remove all <style> tags
-        for style in soup.find_all('style'):
-            style.decompose()
-        # Get the cleaned HTML
-        self.text = soup.prettify()  # Use prettify for better formatting
+        self.text = super()._links_to_local()
+
+        # self.text = html2text.html2text(self.text)
+
+        bs = BeautifulSoup(self.text, 'lxml')
+        for tag in bs.find_all('script', 'iframe', 'frame', 'style'):
+            tag.decompose()
+        self.text = bs.get_text()
+
         self.newresponse.text = self.text
+        self.newresponse.content_type = 'text/plain'
         return self.newresponse
