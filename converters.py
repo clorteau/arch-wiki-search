@@ -49,8 +49,8 @@ class CleanHTMLConverter(RawConverter):
         for frame in soup.find_all(['iframe', 'frame']):
             frame.decompose()
         # Remove all <style> tags
-        # for style in soup.find_all('style'):
-        #     style.decompose()
+        for style in soup.find_all('style'):
+            style.decompose()
         # Get the cleaned HTML
         self.text = soup.prettify()  # Use prettify for better formatting
         self.newresponse.text = self.text
