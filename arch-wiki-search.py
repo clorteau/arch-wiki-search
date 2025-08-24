@@ -5,9 +5,8 @@
 License: MIT
 """
 
-#TODO: convert html to text and markdown
+#TODO: convert html to markdown
 #TODO: alternate browser
-#TODO: conv = cleanhtml - custom css to clean up the page
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: github feature request template to add new wikis
