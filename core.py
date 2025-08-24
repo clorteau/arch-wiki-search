@@ -89,7 +89,7 @@ class Core:
 
     def __init__(self, knownwikis,
                  base_url=None, search_parm=None,
-                 alt_browser='', conv='raw', wiki='archwiki',
+                 alt_browser='', conv='', wiki='archwiki',
                  offline=False, refresh=False, debug=False, ):
         """base_url (option -u) will override -wiki.url
         search_parm (option -s) will override -wiki.searchstring
@@ -117,5 +117,5 @@ class Core:
         if self.debug: logger.setLevel(logging.DEBUG)
         else: logger.setLevel(logging.INFO)
 
-        self.cachingproxy = CachingProxy(self.base_url, debug=debug)
+        self.cachingproxy = CachingProxy(self.base_url, debug=debug, conv=self.conv)
 
