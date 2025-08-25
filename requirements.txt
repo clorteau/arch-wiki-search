@@ -6,8 +6,5 @@ aiohttp
 lxml_html_clean
 beautifulsoup4
 html2text
-<<<<<<< HEAD
 html5lib
-=======
-html5lib
->>>>>>> cead99ba2dd61f06d5811535c3e741dd7f69ffd7
+zipfile
