@@ -66,7 +66,7 @@ class CachingProxy:
         site = web.TCPSite(self.runner, 'localhost', self.port)
         await site.start()
     
-        logger.info(f'Serving wiki on http://localhost:{self.port}')
+        logger.info(f'Serving wiki on http://localhost:{self.port} - press < ctrl-c > to stop')
 
     async def stop(self):
         await self.runner.cleanup()
@@ -75,7 +75,7 @@ class CachingProxy:
         """Retrieves contents at base_url/urlpath
         """
         #TODO: pre-cache one-level of links
-        url = self.base_url + urlpath
+        url = self.base_url + '/' + urlpath
         resp = None
         ignore_cookies = DummyCookieJar()
         async with CachedSession(cache=self.cache, cookie_jar=ignore_cookies) as session:
@@ -97,7 +97,7 @@ class CachingProxy:
         
         return resp
 
-    async def _get_handler(self, request):
+    async def _get_handler(self, request, ):
         """Fetches the requested page, manipulates it and responds with it
         """
         logger.debug(f'Got request: {request}')
@@ -108,15 +108,25 @@ class CachingProxy:
         path = url.replace(self.base_url, '')
 
         response = await self.fetch(path)
-        newresponse = await converters.RawConverter.convert(response, self.base_url, self.port)
+        if self.conv == 'raw':
+            converter = converters.RawConverter(response, self.base_url, self.port)
+        elif self.conv == 'clean':
+            converter = converters.CleanHTMLConverter(response, self.base_url, self.port)
+        elif self.conv == 'txt':
+            converter = converters.TxtConverter(response, self.base_url, self.port)
+        else:
+            #TODO: detect if running in graphical envrionment or console
+            converter = converters.RawConverter(response, self.base_url, self.port)
+        newresponse = await converter.convert()
         await newresponse.prepare(request)
         return newresponse
 
-    def __init__(self, base_url, cache_dir='', expire_days=30, debug=False):
+    def __init__(self, base_url, cache_dir='', expire_days=30, debug=False, conv=''):
         self.base_url = base_url
         self.expire_days = expire_days
         self.cache_dir = cache_dir
         self.debug = debug
+        self.conv = conv
 
         if (not self.base_url.startswith(('http://', 'https://'))):
             err = f'Unsupported url: {self.base_url}'

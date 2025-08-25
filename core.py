@@ -85,11 +85,12 @@ class Core:
         TODO: proper stop condition
         """
         while not self._stop:
+            # if keyboard.is_pressed('q'): self._stop = true #bs needs root
             await asyncio.sleep(secs)
 
     def __init__(self, knownwikis,
                  base_url=None, search_parm=None,
-                 alt_browser='', conv='raw', wiki='archwiki',
+                 alt_browser='', conv='', wiki='archwiki',
                  offline=False, refresh=False, debug=False, ):
         """base_url (option -u) will override -wiki.url
         search_parm (option -s) will override -wiki.searchstring
@@ -100,10 +101,8 @@ class Core:
                 self.base_url = w.url
                 self.search_parm = w.searchstring
                 break
-
+            
         if base_url:
-            if not base_url.endswith('/'):
-                base_url += '/' #so relative links work
             self.base_url = base_url
         if search_parm:
             self.search_parm = search_parm
@@ -115,5 +114,5 @@ class Core:
         if self.debug: logger.setLevel(logging.DEBUG)
         else: logger.setLevel(logging.INFO)
 
-        self.cachingproxy = CachingProxy(self.base_url, debug=debug)
+        self.cachingproxy = CachingProxy(self.base_url, debug=debug, conv=self.conv)
 
