@@ -6,10 +6,6 @@ License: MIT
 
 import warnings
 import html5lib
-<<<<<<< HEAD
-=======
-import html2text
->>>>>>> cead99ba2dd61f06d5811535c3e741dd7f69ffd7
 import lxml_html_clean
 from aiohttp import web
 from aiohttp_client_cache import CachedResponse
@@ -37,7 +33,7 @@ class RawConverter:
             self.text = await self.response.text()
         except Exception as e:
             msg = 'Error reading response from server: ' + str(e)
-            logger.warning(msg)
+            logger.debug(msg)
             self.newresponse.text = msg
             return self.newresponse
         self.text = self._links_to_local()
@@ -53,7 +49,6 @@ class CleanHTMLConverter(RawConverter):
             self.text = await self.response.text()
         except Exception as e:
             msg = 'Error reading response from server: ' + str(e)
-            logger.warning(msg)
             self.newresponse.text = msg
             return self.newresponse
         self.text = super()._links_to_local()
@@ -75,16 +70,10 @@ class TxtConverter(RawConverter):
             self.text = await self.response.text()
         except Exception as e:
             msg = 'Error reading response from server: ' + str(e)
-            logger.warning(msg)
             self.newresponse.text = msg
             return self.newresponse
         self.text = super()._links_to_local()
 
-<<<<<<< HEAD
-=======
-        # self.text = html2text.html2text(self.text)
-
->>>>>>> cead99ba2dd61f06d5811535c3e741dd7f69ffd7
         bs = BeautifulSoup(self.text, 'lxml')
         for tag in bs.find_all('script', 'iframe', 'frame', 'style'):
             tag.decompose()
