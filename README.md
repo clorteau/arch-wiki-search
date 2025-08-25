@@ -10,6 +10,7 @@ It launches the browser appropriate to your environment, caches what you access 
 For instance:
 
 `./archwiki-search.py "installation guide"`
+
 `./archwiki-serach.py --wiki=wikipedia --conv=txt "MIT license"`
 
 [TODO: screenshots/webms]
