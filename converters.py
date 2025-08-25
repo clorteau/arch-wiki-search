@@ -6,7 +6,6 @@ License: MIT
 
 import warnings
 import html5lib
-import html2text
 import lxml_html_clean
 from aiohttp import web
 from aiohttp_client_cache import CachedResponse
@@ -76,8 +75,6 @@ class TxtConverter(RawConverter):
             self.newresponse.text = msg
             return self.newresponse
         self.text = super()._links_to_local()
-
-        # self.text = html2text.html2text(self.text)
 
         bs = BeautifulSoup(self.text, 'lxml')
         for tag in bs.find_all('script', 'iframe', 'frame', 'style'):

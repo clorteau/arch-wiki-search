@@ -6,12 +6,10 @@ License: MIT
 """
 
 #TODO: convert html to markdown
-#TODO: alternate browser
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: github feature request template to add new wikis
 #TODO: arg to change number of days before cache expiry
-#TODO: options to export and import cache
 #TODO: readme
 #TODO: prompt while serving to search other terms
 
@@ -19,6 +17,7 @@ import sys
 import asyncio
 import argparse
 
+from exchange import ZIP
 from core import Core
 from wikis import Wikis
 from __init__ import __version__, __url__, __newwikirequesturl__, logger
@@ -46,7 +45,7 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(
         prog = sys.argv[0],
-        description = f'''Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text 
+        description = f'''Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal 
 
 Examples:
     {format_yellow}🡪 {format_reset}{sys.argv[0]} \"installation guide\"{format_reset}
@@ -80,6 +79,10 @@ txt: convert to plain text
                         help='Force going online and refresh the cache')
     parser.add_argument('-v', '--version', default=False, action='store_true',
                         help='Print version number and exit')
+    parser.add_argument('-x', '--export', default=False, action='store_true',
+                        help='Export cache as .zip file')
+    parser.add_argument('-m', '--merge', default=None,
+                        help='Import and merge cache from a zip file created with --export') #TODO validate the import
     parser.add_argument('-d', '--debug', default=False, action='store_true')
     parser.add_argument('search', help='string to search (ex: \"installation guide\")', nargs='?',
                         const=None, type=str)
@@ -87,6 +90,7 @@ txt: convert to plain text
     if (args.version):
         print(__version__)
         sys.exit(0)
+
     if (not args.search):
         search = ''
     else:
@@ -102,6 +106,20 @@ txt: convert to plain text
                 debug=args.debug,
                 wiki=args.wiki,
                 )
+
+    if (args.export):
+        if (args.merge):
+            logger.critical('--export and --merge can\'t be used together')
+            sys.exit(-6)
+        ZIP().export(core.cachingproxy.cache_dir)
+        sys.exit(0)
+
+    if (args.merge):
+        if args.export:
+            logger.critical('--export and --merge can\'t be used together')
+            zip.exit(-6)
+        ZIP().merge(core.cachingproxy.cache_dir, args.merge)
+        sys.exit(0)
 
     try:
         asyncio.run(main())
