@@ -11,7 +11,7 @@ For instance:
 
 `./archwiki-search.py "installation guide"`
 
-`./archwiki-serach.py --wiki=wikipedia --conv=txt "MIT license"`
+`./archwiki-search.py --wiki=wikipedia --conv=txt "MIT license"`
 
 [TODO: screenshots/webms]
  
