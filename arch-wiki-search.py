@@ -64,9 +64,9 @@ Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{form
                          help='URL of wiki to browse (ex: https://wikipedia.org, https://wiki.freebsd.org)')
     parser.add_argument('-s', '--searchstring', default=None,
                          help='alternative search string (ex: \"/wiki/Special:Search?go=Go&search=\", \"/FrontPage?action=fullsearch&value=\")')
-    parser.add_argument('-b', '--browser',
-        help='browser to use instead of user\'s default (ex: \'elinks\', \'firefox\')',
-        default=None, type=str)
+    # parser.add_argument('-b', '--browser',
+    #     help='browser to use instead of user\'s default (ex: \'elinks\', \'firefox\')',
+    #     default=None, type=str)
     parser.add_argument('-c', '--conv', default=None,
                         choices=['raw', 'clean', 'txt'],
                         help='''conversion mode:
@@ -93,7 +93,7 @@ txt: convert to plain text
         search = args.search
 
     core = Core(knownwikis,
-                alt_browser=args.browser,
+                # alt_browser=args.browser,
                 conv=args.conv,
                 base_url=args.url, 
                 search_parm=args.searchstring,
