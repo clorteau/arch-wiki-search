@@ -3,7 +3,7 @@ issue_templates:
   - name: "Add known wiki"
     description: "Request to add a known wiki"
     title:"[newwiki]: <wiki URL>"
-    body: newwiki.md
+    body: ./ISSUE_TEMPLATE/newwiki.md
   - name: "Bug report"
     description: "Bug report. Be descriptive and precise."
     title: "[Bug] Bug report: "
