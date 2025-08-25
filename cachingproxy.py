@@ -80,6 +80,17 @@ class CachingProxy:
         ignore_cookies = DummyCookieJar()
         async with CachedSession(cache=self.cache, cookie_jar=ignore_cookies) as session:
             try:
+                """FIXME on empty cache
+    Exception has occurred: ProgrammingError
+Cannot operate on a closed database.
+  File "/home/northernlights/git/archwikisearch/cachingproxy.py", line 83, in fetch
+    resp = await session.get(f'{url}')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/northernlights/git/archwikisearch/cachingproxy.py", line 110, in _get_handler
+    response = await self.fetch(path)
+  File "/home/northernlights/git/archwikisearch/arch-wiki-search.py", line 111, in <module>
+    asyncio.run(main())
+sqlite3.ProgrammingError: Cannot operate on a closed database."""
                 resp = await session.get(f'{url}')
             except Exception as e:
                 msg = f'Failed to fetch URL: {url}'

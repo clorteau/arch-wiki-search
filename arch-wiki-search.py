@@ -6,6 +6,10 @@ License: MIT
 """
 
 #TODO: convert html to markdown
+<<<<<<< HEAD
+=======
+#TODO: alternate browser
+>>>>>>> cead99ba2dd61f06d5811535c3e741dd7f69ffd7
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: github feature request template to add new wikis
@@ -63,9 +67,15 @@ Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{form
                          help='URL of wiki to browse (ex: https://wikipedia.org, https://wiki.freebsd.org)')
     parser.add_argument('-s', '--searchstring', default=None,
                          help='alternative search string (ex: \"/wiki/Special:Search?go=Go&search=\", \"/FrontPage?action=fullsearch&value=\")')
+<<<<<<< HEAD
     # parser.add_argument('-b', '--browser',
     #     help='browser to use instead of user\'s default (ex: \'elinks\', \'firefox\')',
     #     default=None, type=str)
+=======
+    parser.add_argument('-b', '--browser',
+        help='browser to use instead of user\'s default (ex: \'elinks\', \'firefox\')',
+        default=None, type=str)
+>>>>>>> cead99ba2dd61f06d5811535c3e741dd7f69ffd7
     parser.add_argument('-c', '--conv', default=None,
                         choices=['raw', 'clean', 'txt'],
                         help='''conversion mode:
