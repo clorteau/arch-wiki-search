@@ -81,8 +81,13 @@ class TxtConverter(RawConverter):
         bs = BeautifulSoup(self.text, 'lxml')
         for tag in bs.find_all('script', 'iframe', 'frame', 'style'):
             tag.decompose()
-        self.text = bs.get_text()
+        text = bs.get_text()
 
+        # remove extra new lines
+        text = text.replace('\r\n\r\n\r\n', '\r\n\r\n')
+        text = text.replace('\n\n\n', '\n\n')
+
+        self. text = text
         self.newresponse.text = self.text
         self.newresponse.content_type = 'text/plain'
         return self.newresponse
