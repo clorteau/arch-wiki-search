@@ -106,6 +106,7 @@ class CachingProxy:
                 if (self.debug): text += f'<code>{trace.replace('\n', '<br/>\n')}</code>'
                 text += '</html>'
                 return web.Response(content_type='text/html', text=text)
+            await session.close()
         # logger.debug(f'Request: {resp.request_info.headers}')
         return resp
 

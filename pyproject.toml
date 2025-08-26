@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "arch-wiki-search"
-version = "20250825"
+version = "20250826"
 #dynamic = ["version"]
 authors = [
   { name="Clem Lorteau", email="spam@lorteau.fr" },

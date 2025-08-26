@@ -7,9 +7,9 @@ License: MIT
 import os
 import yaml
 try:
-    from __init__ import __name__, __newwikirequesturl__, logger, Colors
+    from __init__ import __name__, __newwikirequesturl__, logger
 except ModuleNotFoundError:
-    from arch_wiki_search.arch_wiki_search import __name__, __newwikirequesturl__, logger, Colors
+    from arch_wiki_search.arch_wiki_search import __name__, __newwikirequesturl__, logger
     
 class Wiki:
     name = ''
