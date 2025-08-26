@@ -7,9 +7,9 @@ License: MIT
 import os
 import yaml
 try:
-    from __init__ import __name__, logger
+    from __init__ import __name__, __newwikirequesturl__, logger, Colors
 except ModuleNotFoundError:
-    from arch_wiki_search.arch_wiki_search import __name__, logger
+    from arch_wiki_search.arch_wiki_search import __name__, __newwikirequesturl__, logger, Colors
     
 class Wiki:
     name = ''
@@ -31,6 +31,19 @@ class Wikis(set):
             names.append(w.name)
         return sorted(names)
 
+    def gethelpstring(self):
+        s = f'Known wikis are loaded from {Colors.yellow}{self.filename}{Colors.reset} files in these directories:\n'
+        for d in self.dirs:
+            s += f'🡪 {Colors.yellow}{d}{Colors.reset}\n'
+        s += f'You can edit these files to add your own. If you do, please share at 🌐{Colors.blue_underline}{__newwikirequesturl__}{Colors.reset}\n'
+        s += f'The currently known wikis are:\n'
+        for name in self.getnames():
+            for wiki in self:
+                if name == wiki.name:
+                    s += f'- {wiki.name}: {wiki.url}\n'
+                    break
+        return s
+
     def __init__(self, filename='wikis.yaml'):
         self.filename = filename
         super().__init__()
@@ -46,12 +59,17 @@ class Wikis(set):
                 f = open(path, 'r')
                 docs = yaml.safe_load_all(f)
                 for doc in docs:
-                    self.add(Wiki(doc['name'], doc['url'], doc['searchstring']))
+                    try:
+                        self.add(Wiki(doc['name'], doc['url'], doc['searchstring']))
+                    except Exception as e:
+                        logger.debug(f'Could not add {doc}')
                 f.close()
             except Exception as e:
                 logger.debug(f'Could not load known wikis file {path}: {e}')
         if len(self) == 0:
-            logger.warning('No known wikis found')
+            msg = 'No known wikis found'
+            logger.error('No known wikis found')
+            raise KeyError(msg)
         else:
             logger.debug('Known wikis: ' + str(self))
         

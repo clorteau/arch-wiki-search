@@ -14,22 +14,25 @@ __newwikirequesturl__ = 'https://github.com/clorteau/arch-wiki-search/issues/new
 
 import logging
 
-class CustomFormatter(logging.Formatter):
+class Colors:
     grey = '\x1b[38;20m'
     yellow = '\x1b[33;20m'
     green = '\033[32m'
     red = '\x1b[31;20m'
     bold_red = '\x1b[31;1m'
+    blue_underline = '\033[4;34m'
     reset = '\x1b[0m'
+
+class CustomFormatter(logging.Formatter):
     # format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)'
     fields = ' %(message)s'
 
     FORMATS = {
-        logging.DEBUG: grey + fields + reset,
-        logging.INFO: green + '🡪' + fields + reset,
-        logging.WARNING: yellow + '⚠' + fields + reset,
-        logging.ERROR: red + '✖' + fields + reset,
-        logging.CRITICAL: bold_red + '✖✖' + fields + reset
+        logging.DEBUG: Colors.grey + fields + Colors.reset,
+        logging.INFO: Colors.green + '🡪' + fields + Colors.reset,
+        logging.WARNING: Colors.yellow + '⚠' + fields + Colors.reset,
+        logging.ERROR: Colors.red + '✖' + fields + Colors.reset,
+        logging.CRITICAL: Colors.bold_red + '✖✖' + fields + Colors.reset
     }
 
     def format(self, record):

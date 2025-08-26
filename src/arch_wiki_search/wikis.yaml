@@ -29,3 +29,8 @@ searchstring: '/FrontPage?action=fullsearch&value='
 name: slackdocs
 url: 'https://docs.slackware.com'
 searchstring: '/?do=search&q='
+---
+name: gentoowiki
+url: 'https://wiki.gentoo.org'
+sesarchstring: '/index.php?title=Special%3ASearch&go=Go&search='
+---

@@ -45,7 +45,13 @@ async def _main(core, search):
 def main():
     """Load pre-configured base_url/searchstring pairs from yaml file
     """
-    knownwikis = Wikis()
+    knownwikis = None
+    try:
+        knownwikis = Wikis()
+    except Exception as e:
+        logger.error(e)
+        print(knownwikis.gethelpstring())
+        sys.exit(-6)
     
     parser = argparse.ArgumentParser(
         prog = sys.argv[0],
@@ -53,7 +59,7 @@ def main():
 
 Examples:
     {format_yellow}🡪 {format_reset}{sys.argv[0]} \"installation guide\"{format_reset}
-    {format_yellow}🡪 {format_reset}{sys.argv[0]} --wiki=wikipedia \"MIT license\"{format_reset}''',
+    {format_yellow}🡪 {format_reset}{sys.argv[0]} --wiki=wikipedia --conv=txt \"MIT license\"{format_reset}''',
         epilog = f'''Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a \'{knownwikis.filename}\' file in \'{knownwikis.dirs[0]}\' and \'{knownwikis.dirs[1]}\'
 Github: 🌐{format_blue_underline}{__url__}{format_reset}
@@ -87,7 +93,16 @@ txt: convert to plain text
     parser.add_argument('-d', '--debug', default=False, action='store_true')
     parser.add_argument('search', help='string to search (ex: \"installation guide\")', nargs='?',
                         const=None, type=str)
-    args = parser.parse_args()
+    
+    args = None
+    try:
+        args = parser.parse_args()
+    except SystemExit as e:
+        msg = f'Could not parse {e} arguments'
+        logger.critical(msg)
+        print(knownwikis.gethelpstring())
+        sys.exit(-6)
+
     if (args.version):
         print(__version__)
         sys.exit(0)
