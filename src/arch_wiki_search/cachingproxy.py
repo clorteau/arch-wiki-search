@@ -77,6 +77,9 @@ class CachingProxy:
         await self.runner.cleanup()
         await self.cache.close()
 
+    async def clear(self):
+        await self.cache.clear()
+
     async def _fetch(self, urlpath):
         url = self.base_url + '/' + urlpath
         resp = None

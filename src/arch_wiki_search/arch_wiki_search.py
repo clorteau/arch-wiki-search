@@ -44,6 +44,16 @@ async def _main(core, search):
         logger.info('Stopping')
     await core.stop()
 
+async def _clear(core):
+    """Clear the cache
+    """
+    await core.cachingproxy.printcachesize()
+    logger.warning('This will clear your cache - are you sure? (type \'Yes\')')
+    a = input ('> ') #TODO: prompts in curses
+    if a != 'Yes': sys.exit(-7)
+    await core.cachingproxy.clear()
+    await core.cachingproxy.printcachesize()
+
 def main():
     """Load pre-configured base_url/searchstring pairs from yaml file
     """
@@ -94,6 +104,8 @@ txt: convert to plain text
                         help='Export cache as .zip file')
     parser.add_argument('-m', '--merge', default=None,
                         help='Import and merge cache from a zip file created with --export') #TODO validate the import
+    parser.add_argument('--clear', default=False, action='store_true',
+                        help='Clear cache and exit')
     parser.add_argument('-d', '--debug', default=False, action='store_true')
     parser.add_argument('search', help='string to search (ex: \"installation guide\")', nargs='?',
                         const=None, type=str)
@@ -102,10 +114,11 @@ txt: convert to plain text
     try:
         args = parser.parse_args()
     except SystemExit as e:
-        msg = f'Could not parse {e} arguments'
-        logger.critical(msg)
-        print(knownwikis.gethelpstring())
-        sys.exit(-6)
+        if e.code != 0:
+            msg = f'Could not parse {e} arguments'
+            logger.critical(msg)
+            print(knownwikis.gethelpstring())
+        sys.exit(e.code)
 
     if (args.version):
         print(__version__)
@@ -126,6 +139,10 @@ txt: convert to plain text
                 debug=args.debug,
                 wiki=args.wiki,
                 )
+
+    if (args.clear):
+        asyncio.run(_clear(core))
+        sys.exit(0)
 
     if (args.export):
         if (args.merge):
