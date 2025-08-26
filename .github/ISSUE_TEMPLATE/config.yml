@@ -3,4 +3,4 @@ issue_templates:
   - name: "Add known wiki"
     description: "Request to add a known wiki"
     title:"[newwiki]: <wiki URL>"
-    body: ./ISSUE_TEMPLATE/newwiki.md
+    body: ./newwiki.md
