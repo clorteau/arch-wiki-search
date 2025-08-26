@@ -6,8 +6,11 @@ License: MIT
 
 import os
 import yaml
-from __init__ import __name__, logger
-
+try:
+    from __init__ import __name__, logger
+except ModuleNotFoundError:
+    from arch_wiki_search.arch_wiki_search import __name__, logger
+    
 class Wiki:
     name = ''
     url = ''

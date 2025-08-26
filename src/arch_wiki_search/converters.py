@@ -10,8 +10,12 @@ import lxml_html_clean
 from aiohttp import web
 from aiohttp_client_cache import CachedResponse
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
-from __init__ import logger
 
+try:
+    from __init__ import logger
+except ModuleNotFoundError:
+    from arch_wiki_search import logger
+    
 class RawConverter:
     """Manipulates a aiohttp.ClientResponse to convert contents
     TODO: only convert if original response status is 200 ok, otherwise return an error page

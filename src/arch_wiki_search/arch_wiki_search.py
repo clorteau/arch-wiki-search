@@ -9,24 +9,30 @@ License: MIT
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: arg to change number of days before cache expiry
-#TODO: readme
+#TODO: user agent
 #TODO: prompt while serving to search other terms
 
 import sys
 import asyncio
 import argparse
 
-from exchange import ZIP
-from core import Core
-from wikis import Wikis
-from __init__ import __version__, __url__, __newwikirequesturl__, logger
+try:
+    from __init__ import __name__, __version__, __url__, __newwikirequesturl__, logger
+    from exchange import ZIP
+    from core import Core
+    from wikis import Wikis
+except ModuleNotFoundError:
+    from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, logger
+    from arch_wiki_search.exchange import ZIP
+    from arch_wiki_search.core import Core
+    from arch_wiki_search.wikis import Wikis
 
 format_blue_underline = '\033[4;34m'
 format_yellow = '\x1b[33;20m'
 format_bold = '\033[1m'
 format_reset = '\033[0m'
 
-async def main():
+async def _main(core, search):
     await core.start()
     try:
         await core.search(search)
@@ -36,11 +42,10 @@ async def main():
         logger.info('Stopping')
     await core.stop()
 
-if __name__ == '__main__':
+def main():
     """Load pre-configured base_url/searchstring pairs from yaml file
     """
     knownwikis = Wikis()
-
     
     parser = argparse.ArgumentParser(
         prog = sys.argv[0],
@@ -118,6 +123,11 @@ txt: convert to plain text
         sys.exit(0)
 
     try:
-        asyncio.run(main())
+        asyncio.run(_main(core, search))
     except KeyboardInterrupt:
         pass #exception CancelledError will be caught in main
+
+if __name__ == '__main__':
+    main()
+
+sys.exit(main())

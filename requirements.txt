@@ -5,6 +5,5 @@ aiodns
 aiohttp
 lxml_html_clean
 beautifulsoup4
-html2text
 html5lib
-zipfile
+pyyaml

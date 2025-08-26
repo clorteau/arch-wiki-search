@@ -1,0 +1,52 @@
+# hatch build
+# python -m twine upload --repository pypi dist/*
+# or
+# hatch publish main
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "arch-wiki-search"
+version = "20250825"
+#dynamic = ["version"]
+authors = [
+  { name="Clem Lorteau", email="spam@lorteau.fr" },
+]
+description = "Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal"
+
+dependencies = [ "aiohttp_client_cache",
+                 "aiofiles",
+                 "aiosqlite",
+                 "aiodns",
+                 "aiohttp",
+                 "lxml_html_clean",
+                 "beautifulsoup4",
+                 "html5lib",
+                 "pyyaml"]
+
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Environment :: X11 Applications",
+    "Environment :: Console",
+    "Framework :: aiohttp"
+]
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["wiki", "arch", "python"]
+
+[project.urls]
+Homepage = "https://github.com/clorteau/arch-wiki-search"
+Issues = "https://github.com/clorteau/arch-wiki-search/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arch_wiki_search"]
+
+[project.scripts]
+#[console_scripts]
+arch-wiki-search = "arch_wiki_search.arch_wiki_search:main"

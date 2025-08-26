@@ -6,7 +6,11 @@ License: MIT
 import os
 from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
-from __init__ import __name__, logger
+
+# try:
+#     from __init__ import __name__, logger
+# except ModuleNotFoundError:
+#     from arch_wiki_search.arch_wiki_search import __name__
 
 class ZIP:
     def __init__(self):

@@ -1,6 +1,8 @@
 In development - 
 [TODO](https://github.com/search?q=repo%3Aclorteau%2Farch-wiki-search%20TODO&type=code)s
 
+
+
 ## Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal ##
 
 *Command-line tool to search Archwiki (and other wikis) from the command-line, on- or off-line, in html or text, on the desktop or the terminal.*
@@ -9,9 +11,9 @@ It launches the browser appropriate to your environment, caches what you access 
 
 For instance:
 
-`./archwiki-search.py "installation guide"`
+`$ arch-wiki-search "installation guide"`
 
-`./archwiki-search.py --wiki=wikipedia --conv=txt "MIT license"`
+`$ arch-wiki-search --wiki=wikipedia --conv=txt "MIT license"`
 
 [TODO: screenshots/webms]
  
@@ -19,15 +21,15 @@ See --help:
 
 
 ```bash
-./arch-wiki-search.py [-h] [-w {archwiki,discovery,fedorawiki,freebsdwiki,manjarowiki,pythonwiki,slackdocs,wikipedia}]
+$ arch-wiki-search [-h] [-w {archwiki,discovery,fedorawiki,freebsdwiki,manjarowiki,pythonwiki,slackdocs,wikipedia}]
                              [-u URL] [-s SEARCHSTRING] [-c {raw,clean,txt}] [--offline] [--refresh] [-v] [-x] [-m MERGE] [-d]
                              [search]
 
 Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal
 
 Examples:
-    🡪 ./arch-wiki-search.py "installation guide"
-    🡪 ./arch-wiki-search.py --wiki=wikipedia "MIT license"
+    🡪 $ arch-wiki-search "installation guide"
+    🡪 $ arch-wiki-search --wiki=wikipedia "MIT license"
 
 positional arguments:
   search                string to search (ex: "installation guide")

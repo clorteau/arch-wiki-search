@@ -4,8 +4,8 @@
 License: MIT
 """
 
-__version__ = '20250819'
-__name__ = 'arch-wiki-search'
+__version__ = '20250825'
+__name__ = 'arch_wiki_search'
 __author__ = 'Clem Lorteau'
 __license__ = 'MIT'
 
