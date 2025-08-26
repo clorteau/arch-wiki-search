@@ -11,20 +11,21 @@ import asyncio
 import traceback
 from datetime import timedelta
 from collections import Counter
-from aiohttp import web, DummyCookieJar
+from aiohttp import web, DummyCookieJar, TraceConfig
 from concurrent.futures import ThreadPoolExecutor
 from aiohttp_client_cache import CachedSession, FileBackend
 
 try:
     import converters
-    from __init__ import logger
+    from __init__ import logger, __version__, __name__, __url__, __contact__
 except ModuleNotFoundError:
-    from arch_wiki_search import converters, logger
+    from arch_wiki_search import converters, logger, __version__, __url__, __contact__
 
 class CachingProxy:
     """Asynchronous caching http proxy that caches for a long time, manipulates responses,
     and only serves one top domain
     """
+    useragent = f'{__name__}/{__version__} ({__url__}; {__contact__}) python-aio-http-cache'
     base_url = ''
     cache_dir = ''
     expire_days = 8
@@ -80,13 +81,21 @@ class CachingProxy:
     async def clear(self):
         await self.cache.clear()
 
+    async def _on_fetch_request_end(self, session, trace_config_ctx, params):
+        logger.debug(f'Request: {params}')
+
     async def _fetch(self, urlpath):
         url = self.base_url + '/' + urlpath
         resp = None
         ignore_cookies = DummyCookieJar()
-        async with CachedSession(cache=self.cache, cookie_jar=ignore_cookies) as session:
+        trace_config = TraceConfig()
+        trace_config.on_request_end.append(self._on_fetch_request_end)
+        async with CachedSession(cache=self.cache,
+                                 cookie_jar=ignore_cookies,
+                                 trace_configs=[trace_config]) as session:
             try:
-                resp = await session.get(f'{url}')
+                resp = await session.get(f'{url}', headers={'User-Agent': self.useragent,
+                                                            'Accept-Encoding': 'gzip'})
             except Exception as e:
                 msg = f'Failed to fetch URL: {url}'
                 trace = traceback.format_exc()
@@ -97,6 +106,7 @@ class CachingProxy:
                 if (self.debug): text += f'<code>{trace.replace('\n', '<br/>\n')}</code>'
                 text += '</html>'
                 return web.Response(content_type='text/html', text=text)
+        # logger.debug(f'Request: {resp.request_info.headers}')
         return resp
 
     async def fetch(self, urlpath):
@@ -106,7 +116,6 @@ class CachingProxy:
         assert resp != None
         expires = resp.expires.isoformat() if resp.expires else 'Never'
         logger.debug(f'{resp.url} expires: {expires}')
-
         return resp
 
     async def _get_handler(self, request, ):

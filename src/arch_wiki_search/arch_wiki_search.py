@@ -9,10 +9,8 @@ License: MIT
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: arg to change number of days before cache expiry
-#TODO: user agent
 #TODO: prompt while serving to search other terms
 #TODO: option to select language
-#TODO: flag to clear cache
 
 import sys
 import asyncio

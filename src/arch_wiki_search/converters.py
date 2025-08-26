@@ -30,8 +30,9 @@ class RawConverter:
         links = soup.find_all('a')
         for link in links:
             url = link.get('href')
-            if url.startswith(self.base_url) or url.startswith('/'):
-                hrefs.append(url)
+            if url != None:
+                if url.startswith(self.base_url) or url.startswith('/'):
+                    hrefs.append(url)
         return hrefs
 
     def _links_to_local(self) -> str:
