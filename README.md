@@ -23,7 +23,7 @@ See --help:
 
 
 ```bash
-$ arch-wiki-search [-h] [-w {archwiki,discovery,fedorawiki,freebsdwiki,manjarowiki,pythonwiki,slackdocs,wikipedia}]
+$ arch-wiki-search [-h] [-w {archwiki,discovery,fedorawiki,freebsdwiki,gentoowiki,manjarowiki,pythonwiki,slackdocs,wikipedia}]
                              [-u URL] [-s SEARCHSTRING] [-c {raw,clean,txt}] [--offline] [--refresh] [-v] [-x] [-m MERGE] [-d]
                              [search]
 
@@ -31,7 +31,7 @@ Read and search Archwiki and other wikis, online or offline, in HTML, markdown o
 
 Examples:
     🡪 $ arch-wiki-search "installation guide"
-    🡪 $ arch-wiki-search --wiki=wikipedia "MIT license"
+    🡪 $ arch-wiki-search --wiki=wikipedia --conv=txt "MIT license"
 
 positional arguments:
   search                string to search (ex: "installation guide")
@@ -54,6 +54,7 @@ options:
   -v, --version         Print version number and exit
   -x, --export          Export cache as .zip file
   -m, --merge MERGE     Import and merge cache from a zip file created with --export
+  --clear               Clear cache and exit
   -d, --debug
 
 Options -u and -s overwrite the corresponding url or searchstring provided by -w
