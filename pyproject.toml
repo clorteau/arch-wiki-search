@@ -14,7 +14,7 @@ version = "20250826"
 authors = [
   { name="Clem Lorteau", email="spam@lorteau.fr" },
 ]
-description = "Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal"
+description = "Read and search Archwiki and other wikis, online or offline, on the desktop or the terminal"
 
 dependencies = [ "aiohttp_client_cache",
                  "aiofiles",
