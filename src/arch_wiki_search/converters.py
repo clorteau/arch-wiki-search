@@ -20,12 +20,26 @@ class RawConverter:
     """Manipulates a aiohttp.ClientResponse to convert contents
     TODO: only convert if original response status is 200 ok, otherwise return an error page
     """
-    def _links_to_local(self):
+
+    def gethrefs(self) -> [str]:
+        """Returns list of local links referenced to by response
+        """
+        hrefs = []
+        warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+        soup = BeautifulSoup(self.response.text, 'html.parser')
+        links = soup.find_all('a')
+        for link in links:
+            url = link.get('href')
+            if url.startswith(self.base_url) or url.startswith('/'):
+                hrefs.append(url)
+        return hrefs
+
+    def _links_to_local(self) -> str:
         """Rewrite links by appending them to our local proxy
         """
         return self.text.replace(self.base_url, f'http://localhost:{self.port}')
 
-    def __init__(self, response, base_url, port):
+    def __init__(self, response: CachedResponse, base_url: str, port: int):
         self.base_url = base_url
         self.port = port
         newresponse = web.Response(status=response.status, content_type=response.content_type)

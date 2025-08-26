@@ -7,19 +7,12 @@ import os
 from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
 
-# try:
-#     from __init__ import __name__, logger
-# except ModuleNotFoundError:
-#     from arch_wiki_search.arch_wiki_search import __name__
-
 class ZIP:
     def __init__(self):
         self.timestamp = '{:%Y%m%d_%H-%M-%S}'.format(datetime.now())
     
     def export(self, dir_path, out_path='.'):
         file_name = f'{out_path}/{__name__}-{self.timestamp}.zip'
-        # if not dir_path.endswith('/'):
-        #     dir_path += '/' #don't create a top level directory
         try:
             with ZipFile(file_name, 'w', ZIP_DEFLATED) as zfile:
                 for root, dirs, files in os.walk(dir_path):

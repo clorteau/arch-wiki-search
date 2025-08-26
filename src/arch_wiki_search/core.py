@@ -110,9 +110,6 @@ class Core:
             
         if base_url:
             self.base_url = base_url
-
-        # if not self.base_url.endswith('/'):
-        #             self.base_url += '/' #so relative links work
         
         if search_parm:
             self.search_parm = search_parm

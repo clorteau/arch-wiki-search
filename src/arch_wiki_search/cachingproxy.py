@@ -10,6 +10,7 @@ import logging
 import asyncio
 import traceback
 from datetime import timedelta
+from collections import Counter
 from aiohttp import web, DummyCookieJar
 from concurrent.futures import ThreadPoolExecutor
 from aiohttp_client_cache import CachedSession, FileBackend
@@ -74,11 +75,9 @@ class CachingProxy:
 
     async def stop(self):
         await self.runner.cleanup()
+        await self.cache.close()
 
-    async def fetch(self, urlpath):
-        """Retrieves contents at base_url/urlpath
-        """
-        #TODO: pre-cache one-level of links
+    async def _fetch(self, urlpath):
         url = self.base_url + '/' + urlpath
         resp = None
         ignore_cookies = DummyCookieJar()
@@ -95,14 +94,21 @@ class CachingProxy:
                 if (self.debug): text += f'<code>{trace.replace('\n', '<br/>\n')}</code>'
                 text += '</html>'
                 return web.Response(content_type='text/html', text=text)
+        return resp
+
+    async def fetch(self, urlpath):
+        """Retrieves contents at base_url/urlpath
+        """
+        resp = await self._fetch(urlpath)
         assert resp != None
         expires = resp.expires.isoformat() if resp.expires else 'Never'
         logger.debug(f'{resp.url} expires: {expires}')
-        
+
         return resp
 
     async def _get_handler(self, request, ):
         """Fetches the requested page, manipulates it and responds with it
+        Also caches one level of links in the background
         """
         logger.debug(f'Got request: {request}')
 
@@ -112,6 +118,8 @@ class CachingProxy:
         path = url.replace(self.base_url, '')
 
         response = await self.fetch(path)
+
+        # convert result
         if self.conv == 'raw':
             converter = converters.RawConverter(response, self.base_url, self.port)
         elif self.conv == 'clean':
@@ -122,6 +130,19 @@ class CachingProxy:
             #TODO: detect if running in graphical envrionment or console
             converter = converters.RawConverter(response, self.base_url, self.port)
         newresponse = await converter.convert()
+
+        # silently try and pre-cache one level of links in separate threads
+        links = converters.RawConverter(newresponse, self.base_url, self.port).gethrefs()
+        if self.previouslinks == None: 
+            self.previouslinks = links
+        # don't do it recursively and vacuum the whole site
+        else:
+            if Counter(links) != Counter(self.previouslinks):
+                for link in links:
+                    if link.startswith('/'): link = link[1:]
+                    logger.debug(f'Precaching {link}')
+                    asyncio.create_task(self._fetch(link)) #don't wait for it
+
         await newresponse.prepare(request)
         return newresponse
 
@@ -131,6 +152,7 @@ class CachingProxy:
         self.cache_dir = cache_dir
         self.debug = debug
         self.conv = conv
+        self.previouslinks = None
 
         if (not self.base_url.startswith(('http://', 'https://'))):
             err = f'Unsupported url: {self.base_url}'
@@ -162,6 +184,7 @@ class CachingProxy:
         self.cache = FileBackend(
             cache_name = self.cache_dir,
             expire_after = timedelta(days=self.expire_days),
+            autoclose=False,
             #only cache these responses
             allowed_codes = (200, #ok
                              301, #permanent move
