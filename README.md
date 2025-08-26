@@ -5,9 +5,9 @@ In development -
 
 ## Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal ##
 
-*Command-line tool to search Archwiki (and other wikis) from the command-line, on- or off-line, in html or text, on the desktop or the terminal.*
+*💡The idea is to always have access to your important wikis, even when things are so FUBAR there's no graphical environment or internet, and also to reduce the load on the wiki hoster themselves since users would be using their own cache most of the time.*
 
-It launches the browser appropriate to your environment, caches what you access +1 level of links if needed on the fly while you have a network connection, and accesses the cache when you're offline or the cache needs a refresh. It can also simplify the pages on the fly and export and import caches for out-of-band sharing or inclusion in an install media. The idea is to always have access to your important wikis, even when things are so FUBAR there's no graphical environment or internet, and also to reduce the load on the wiki hoster themselves since users would be using their own cache most of the time.
+It launches the browser appropriate to your environment, caches what you access +1 level of links if needed on the fly while you have a network connection, and accesses the cache when you're offline or the cache needs a refresh. It can also simplify the pages on the fly and export and import caches for out-of-band sharing or inclusion in an install media. 
 
 There's no option to cache a whole wiki at once, in order to, you know, *not* DDOS them. So what will be available offline will be what you already accessed online manually, or that you imported with --merge prior.
 
