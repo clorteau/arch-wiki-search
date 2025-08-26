@@ -57,7 +57,7 @@ options:
 Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a 'wikis.yaml' file in '$(pwd)' and '{$HOME}/.config/arch-wiki-search'
 Github: 🌐https://github.com/clorteau/arch-wiki-search
-Request to add new wiki: 🌐https://#TODO
+Request to add new wiki: 🌐https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md
 ```
 
 ### Installation ###
