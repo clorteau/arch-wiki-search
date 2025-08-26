@@ -10,10 +10,16 @@ import asyncio
 import traceback
 import webbrowser
 import urllib.parse
-from cachingproxy import CachingProxy
 from concurrent.futures import ThreadPoolExecutor
-from __init__ import __name__, logger
-import wikis
+
+try:
+    from __init__ import logger
+    from cachingproxy import CachingProxy
+    import wikis
+except ModuleNotFoundError:
+    from arch_wiki_search import logger
+    from arch_wiki_search.cachingproxy import CachingProxy
+    from arch_wiki_search.wikis import Wikis
 
 class Core:
     """Manages the caching proxy in async context and launches the appropriate browser
@@ -104,6 +110,7 @@ class Core:
             
         if base_url:
             self.base_url = base_url
+        
         if search_parm:
             self.search_parm = search_parm
         self.conv = conv

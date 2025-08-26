@@ -4,32 +4,37 @@
 License: MIT
 """
 
-__version__ = '20250819'
-__name__ = 'arch-wiki-search'
+__version__ = '20250826'
+__name__ = 'arch_wiki_search'
 __author__ = 'Clem Lorteau'
 __license__ = 'MIT'
 
+__contact__ = '@northernlights:matrix.lorteau.fr'
 __url__ = 'https://github.com/clorteau/arch-wiki-search'
-__newwikirequesturl__ = 'https://#TODO'
+__newwikirequesturl__ = 'https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md'
 
 import logging
 
-class CustomFormatter(logging.Formatter):
+class Colors:
     grey = '\x1b[38;20m'
     yellow = '\x1b[33;20m'
     green = '\033[32m'
     red = '\x1b[31;20m'
+    bold = '\033[1m'
     bold_red = '\x1b[31;1m'
+    blue_underline = '\033[4;34m'
     reset = '\x1b[0m'
+
+class CustomFormatter(logging.Formatter):
     # format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)'
     fields = ' %(message)s'
 
     FORMATS = {
-        logging.DEBUG: grey + fields + reset,
-        logging.INFO: green + '🡪' + fields + reset,
-        logging.WARNING: yellow + '⚠' + fields + reset,
-        logging.ERROR: red + '✖' + fields + reset,
-        logging.CRITICAL: bold_red + '✖✖' + fields + reset
+        logging.DEBUG: Colors.grey + fields + Colors.reset,
+        logging.INFO: Colors.green + '🡪' + fields + Colors.reset,
+        logging.WARNING: Colors.yellow + '⚠' + fields + Colors.reset,
+        logging.ERROR: Colors.red + '✖' + fields + Colors.reset,
+        logging.CRITICAL: Colors.bold_red + '✖✖' + fields + Colors.reset
     }
 
     def format(self, record):

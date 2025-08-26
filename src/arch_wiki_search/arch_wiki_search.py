@@ -8,26 +8,31 @@ License: MIT
 #TODO: convert html to markdown
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
-#TODO: github feature request template to add new wikis
 #TODO: arg to change number of days before cache expiry
-#TODO: readme
 #TODO: prompt while serving to search other terms
+#TODO: option to select language
 
 import sys
 import asyncio
 import argparse
 
-from exchange import ZIP
-from core import Core
-from wikis import Wikis
-from __init__ import __version__, __url__, __newwikirequesturl__, logger
+try:
+    from __init__ import __name__, __version__, __url__, __newwikirequesturl__, logger
+    from exchange import ZIP
+    from core import Core
+    from wikis import Wikis
+except ModuleNotFoundError:
+    from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, logger
+    from arch_wiki_search.exchange import ZIP
+    from arch_wiki_search.core import Core
+    from arch_wiki_search.wikis import Wikis
 
 format_blue_underline = '\033[4;34m'
 format_yellow = '\x1b[33;20m'
 format_bold = '\033[1m'
 format_reset = '\033[0m'
 
-async def main():
+async def _main(core, search):
     await core.start()
     try:
         await core.search(search)
@@ -37,11 +42,28 @@ async def main():
         logger.info('Stopping')
     await core.stop()
 
-if __name__ == '__main__':
+async def _clear(core):
+    """Clear the cache
+    """
+    await core.cachingproxy.printcachesize()
+    logger.warning('This will clear your cache - are you sure? (type \'Yes\')')
+    a = input ('> ') #TODO: prompts in curses
+    if a != 'Yes': sys.exit(-7)
+    await core.cachingproxy.clear()
+    await core.cachingproxy.printcachesize()
+
+def main():
     """Load pre-configured base_url/searchstring pairs from yaml file
     """
-    knownwikis = Wikis()
-
+    knownwikis = None
+    debug = False
+    if '-d' in sys.argv: debug = True
+    try:
+        knownwikis = Wikis(debug=debug)
+    except Exception as e:
+        logger.error(e)
+        print(knownwikis.gethelpstring())
+        sys.exit(-6)
     
     parser = argparse.ArgumentParser(
         prog = sys.argv[0],
@@ -49,7 +71,7 @@ if __name__ == '__main__':
 
 Examples:
     {format_yellow}🡪 {format_reset}{sys.argv[0]} \"installation guide\"{format_reset}
-    {format_yellow}🡪 {format_reset}{sys.argv[0]} --wiki=wikipedia \"MIT license\"{format_reset}''',
+    {format_yellow}🡪 {format_reset}{sys.argv[0]} --wiki=wikipedia --conv=txt \"MIT license\"{format_reset}''',
         epilog = f'''Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a \'{knownwikis.filename}\' file in \'{knownwikis.dirs[0]}\' and \'{knownwikis.dirs[1]}\'
 Github: 🌐{format_blue_underline}{__url__}{format_reset}
@@ -63,9 +85,6 @@ Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{form
                          help='URL of wiki to browse (ex: https://wikipedia.org, https://wiki.freebsd.org)')
     parser.add_argument('-s', '--searchstring', default=None,
                          help='alternative search string (ex: \"/wiki/Special:Search?go=Go&search=\", \"/FrontPage?action=fullsearch&value=\")')
-    # parser.add_argument('-b', '--browser',
-    #     help='browser to use instead of user\'s default (ex: \'elinks\', \'firefox\')',
-    #     default=None, type=str)
     parser.add_argument('-c', '--conv', default=None,
                         choices=['raw', 'clean', 'txt'],
                         help='''conversion mode:
@@ -83,10 +102,22 @@ txt: convert to plain text
                         help='Export cache as .zip file')
     parser.add_argument('-m', '--merge', default=None,
                         help='Import and merge cache from a zip file created with --export') #TODO validate the import
+    parser.add_argument('--clear', default=False, action='store_true',
+                        help='Clear cache and exit')
     parser.add_argument('-d', '--debug', default=False, action='store_true')
     parser.add_argument('search', help='string to search (ex: \"installation guide\")', nargs='?',
                         const=None, type=str)
-    args = parser.parse_args()
+    
+    args = None
+    try:
+        args = parser.parse_args()
+    except SystemExit as e:
+        if e.code != 0:
+            msg = f'Could not parse {e} arguments'
+            logger.critical(msg)
+            print(knownwikis.gethelpstring())
+        sys.exit(e.code)
+
     if (args.version):
         print(__version__)
         sys.exit(0)
@@ -107,6 +138,10 @@ txt: convert to plain text
                 wiki=args.wiki,
                 )
 
+    if (args.clear):
+        asyncio.run(_clear(core))
+        sys.exit(0)
+
     if (args.export):
         if (args.merge):
             logger.critical('--export and --merge can\'t be used together')
@@ -122,6 +157,11 @@ txt: convert to plain text
         sys.exit(0)
 
     try:
-        asyncio.run(main())
+        asyncio.run(_main(core, search))
     except KeyboardInterrupt:
         pass #exception CancelledError will be caught in main
+
+if __name__ == '__main__':
+    main()
+
+sys.exit(main())

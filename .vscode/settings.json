@@ -1,0 +1,40 @@
+{
+
+    "todohighlight.keywords": [
+        {
+            "text": "TODO:",
+            "color": "#44ffff", 
+            "backgroundColor": "#333333"
+        }
+    ],
+    "editor.fontSize": 12,
+    "editor.fontFamily": "'Droid Sans Mono', 'monospace', monospace",
+    "editor.fontLigatures": true,
+    "debug.console.fontSize": 10,
+    "scm.inputFontSize": 12,
+    "terminal.integrated.fontFamily": "MesloLGS NF",
+    "terminal.integrated.fontLigatures.enabled": true,
+    "terminal.integrated.fontSize": 10,
+        "git.confirmSync": false,
+    "todo-tree.highlights.customHighlight": {
+        "BUG": {
+            "icon": "bug"
+        },
+        "TODO": {
+            "icon": "info"
+        },
+        "HACK": {
+            "icon": "tools"
+        },
+        "FIXME": {
+            "icon": "flame"
+        },
+        "XXX": {
+            "icon": "$(close)"
+        }
+    },
+    "todo-tree.highlights.backgroundColourScheme": [],
+    "todo-tree.highlights.foregroundColourScheme": [
+        "orange",
+    ],
+}

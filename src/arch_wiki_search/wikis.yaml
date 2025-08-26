@@ -14,6 +14,10 @@ name: manjarowiki
 url: 'https://wiki.manjaro.org/index.php'
 searchstring: '?title=Special%3ASearch&search='
 ---
+name: gentoowiki
+url: 'https://wiki.gentoo.org'
+searchstring: '/index.php?title=Special%3ASearch&go=Go&search='
+---
 name: fedorawiki
 url: 'https://fedoraproject.org'
 searchstring: '/w/index.php?title=Special%3ASearch&search='
@@ -29,3 +33,4 @@ searchstring: '/FrontPage?action=fullsearch&value='
 name: slackdocs
 url: 'https://docs.slackware.com'
 searchstring: '/?do=search&q='
+

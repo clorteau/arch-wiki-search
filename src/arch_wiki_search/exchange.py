@@ -6,7 +6,6 @@ License: MIT
 import os
 from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
-from __init__ import __name__, logger
 
 class ZIP:
     def __init__(self):
@@ -14,8 +13,6 @@ class ZIP:
     
     def export(self, dir_path, out_path='.'):
         file_name = f'{out_path}/{__name__}-{self.timestamp}.zip'
-        # if not dir_path.endswith('/'):
-        #     dir_path += '/' #don't create a top level directory
         try:
             with ZipFile(file_name, 'w', ZIP_DEFLATED) as zfile:
                 for root, dirs, files in os.walk(dir_path):
