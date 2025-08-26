@@ -10,7 +10,7 @@ __author__ = 'Clem Lorteau'
 __license__ = 'MIT'
 
 __url__ = 'https://github.com/clorteau/arch-wiki-search'
-__newwikirequesturl__ = 'https://#TODO'
+__newwikirequesturl__ = 'https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md'
 
 import logging
 
