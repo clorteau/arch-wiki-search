@@ -21,6 +21,9 @@ class Wiki:
         self.url = url
         self.searchstring = searchstring
 
+    def __str__(self):
+        return f'{self.name}: {Colors.blue_underline}{self.url}{Colors.reset} ({self.searchstring})'
+
 class Wikis(set):
     filename = ''
     dirs = []
@@ -37,39 +40,57 @@ class Wikis(set):
             s += f'🡪 {Colors.yellow}{d}{Colors.reset}\n'
         s += f'You can edit these files to add your own. If you do, please share at 🌐{Colors.blue_underline}{__newwikirequesturl__}{Colors.reset}\n'
         s += f'The currently known wikis are:\n'
+        s += str(self)
+        return s
+
+    def __str__(self):
+        s = ''
         for name in self.getnames():
             for wiki in self:
                 if name == wiki.name:
-                    s += f'- {wiki.name}: {wiki.url}\n'
+                    s += f'- {wiki}\n'
                     break
         return s
 
-    def __init__(self, filename='wikis.yaml'):
+    def __init__(self, filename='wikis.yaml', debug=False):
         self.filename = filename
+        self.debug = debug
         super().__init__()
+
+        # check where the python file of the loaded module is
         self.dirs.append(os.path.dirname(os.path.realpath(__file__)))
+
+        # check in standard OS user config locations
         if os.name == 'posix': 
             configdir = os.path.join(os.path.expanduser('~'), '.config', __name__)
         elif os.name == 'nt': 
             configdir = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', __name__)
         self.dirs.append(configdir)
+
         for d in self.dirs:
             path = d + '/' + self.filename
             try:
                 f = open(path, 'r')
-                docs = yaml.safe_load_all(f)
+                try:
+                    docs = yaml.safe_load_all(f)
+                except Exception as e:
+                    msg = f'Could not load yaml {path}: {e}'
+                    logger.error(msg)
+                    raise Exception(msg)
                 for doc in docs:
                     try:
                         self.add(Wiki(doc['name'], doc['url'], doc['searchstring']))
                     except Exception as e:
-                        logger.debug(f'Could not add {doc}')
+                        logger.warning(f'Could not read entry {doc} from file {path}')
                 f.close()
             except Exception as e:
-                logger.debug(f'Could not load known wikis file {path}: {e}')
+                msg = f'Could not load known wikis file {path}: {e}'
+                if (self.debug): print(msg)
+                logger.debug(msg)
         if len(self) == 0:
             msg = 'No known wikis found'
             logger.error('No known wikis found')
             raise KeyError(msg)
         else:
-            logger.debug('Known wikis: ' + str(self))
+            if (self.debug): logger.debug('Known wikis: ' + str(self))
         

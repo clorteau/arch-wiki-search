@@ -46,8 +46,10 @@ def main():
     """Load pre-configured base_url/searchstring pairs from yaml file
     """
     knownwikis = None
+    debug = False
+    if '-d' in sys.argv: debug = True
     try:
-        knownwikis = Wikis()
+        knownwikis = Wikis(debug=debug)
     except Exception as e:
         logger.error(e)
         print(knownwikis.gethelpstring())

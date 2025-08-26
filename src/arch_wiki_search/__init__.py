@@ -19,6 +19,7 @@ class Colors:
     yellow = '\x1b[33;20m'
     green = '\033[32m'
     red = '\x1b[31;20m'
+    bold = '\033[1m'
     bold_red = '\x1b[31;1m'
     blue_underline = '\033[4;34m'
     reset = '\x1b[0m'
