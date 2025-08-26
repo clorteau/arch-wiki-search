@@ -57,4 +57,17 @@ options:
 Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a 'wikis.yaml' file in '$(pwd)' and '{$HOME}/.config/arch-wiki-search'
 Github: 🌐https://github.com/clorteau/arch-wiki-search
-Request to add new wiki: 🌐https://#TODO```
+Request to add new wiki: 🌐https://#TODO
+```
+
+### Installation ###
+
+#### Arch Linux and derivatives through AUR ####
+```bash
+$ yay -S arch-wiki-search
+```
+
+#### Anywhere through PyPI ####
+```bash
+$ pipx install arch-wiki-search
+```
