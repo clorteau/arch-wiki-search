@@ -36,8 +36,8 @@ format_reset = '\033[0m'
 
 async def _main(core, search):
     await core.start()
+    await core.spawnIcon()
     try:
-        await core.spawnIcon()
         await core.search(search)
         await core.wait()
     except asyncio.CancelledError:

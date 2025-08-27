@@ -11,7 +11,7 @@ import asyncio
 import traceback
 import webbrowser
 import urllib.parse
-from multiprocessing import Process
+from multiprocessing import Process, Value
 from concurrent.futures import ThreadPoolExecutor
 
 try:
@@ -61,12 +61,11 @@ class Core:
                 __logger__.error('PyQT6 not found, not showing a notification icon')
             else:
                 # run the QT app loop in a separate process
-                #FIXME: still blocking
                 __logger__.info('Spawning notification icon')
                 from notification import NotifIcon
-                p = Process(target=NotifIcon.start)
+                stopFlag = Value('b', 0) #FIXME: stopflag doesn't seem to get update
+                p = Process(target=NotifIcon.start, args=(stopFlag,))
                 p.start()
-                p.join()
 
     def _openbrowser(self, url):
         try:

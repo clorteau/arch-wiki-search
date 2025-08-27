@@ -6,6 +6,7 @@ License: MIT
 """
 
 import sys
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout
 
@@ -22,10 +23,10 @@ class NotifIcon(QSystemTrayIcon):
 
     def __init__(self):
         # generate icon from utf-8 character
-        pixmap = QPixmap(128, 128) #TODO: see how portable that looks
-        pixmap.fill()
+        pixmap = QPixmap(64, 64) #TODO: see how portable that looks
+        pixmap.fill(Qt.GlobalColor.transparent)
         painter = QPainter(pixmap)
-        painter.setFont(QFont('Arial', 64))
+        painter.setFont(QFont('Arial', 50))
         painter.drawText(pixmap.rect(), 0, __icon__)
         painter.end()
         self.icon = QIcon(pixmap)
@@ -51,8 +52,9 @@ class NotifIcon(QSystemTrayIcon):
         self.search_widget.show()
 
     @staticmethod
-    def start():
+    def start(stopFlag):
         qt6app = QApplication(sys.argv)
         notificon = NotifIcon()
         notificon.show()
         qt6app.exec()
+        stopFlag = True
