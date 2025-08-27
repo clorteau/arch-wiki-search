@@ -38,7 +38,7 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -w, --wiki {archwiki,discovery,fedorawiki,freebsdwiki,manjarowiki,pythonwiki,slackdocs,wikipedia}
+  -w, --wiki {archwiki,discovery,fedorawiki,freebsdwiki,gentoowiki,manjarowiki,pythonwiki,slackdocs,wikipedia}
                         Load a known wiki by name (ex: --wiki=wikipedia) [Default: archwiki]
   -u, --url URL         URL of wiki to browse (ex: https://wikipedia.org, https://wiki.freebsd.org)
   -s, --searchstring SEARCHSTRING
