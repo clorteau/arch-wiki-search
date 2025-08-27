@@ -12,6 +12,7 @@ __license__ = 'MIT'
 __contact__ = '@northernlights:matrix.lorteau.fr'
 __url__ = 'https://github.com/clorteau/arch-wiki-search'
 __newwikirequesturl__ = 'https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md'
+__icon__ = '📚'
 
 import logging
 

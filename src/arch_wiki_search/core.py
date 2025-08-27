@@ -4,18 +4,19 @@
 License: MIT
 """
 
+import os
 import sys
 import logging
 import asyncio
 import traceback
 import webbrowser
 import urllib.parse
+from multiprocessing import Process
 from concurrent.futures import ThreadPoolExecutor
 
 try:
     from __init__ import __logger__
     from cachingproxy import LazyProxy
-    import wikis
 except ModuleNotFoundError:
     from arch_wiki_search import __logger__
     from arch_wiki_search.cachingproxy import LazyProxy
@@ -32,6 +33,7 @@ class Core:
     offline = False
     refresh = False
     debug = False
+    qt6app = None
     _stop = False
     
     async def start(self):
@@ -50,6 +52,21 @@ class Core:
         if search_term != '':
             url_path = self.search_parm + urllib.parse.quote_plus(search_term)
         await self._go(url_path)
+
+    async def spawnIcon(self):
+        if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
+            try:
+                from PyQt6.QtWidgets import QApplication
+            except ModuleNotFoundError:
+                __logger__.error('PyQT6 not found, not showing a notification icon')
+            else:
+                # run the QT app loop in a separate process
+                #FIXME: still blocking
+                __logger__.info('Spawning notification icon')
+                from notification import NotifIcon
+                p = Process(target=NotifIcon.start)
+                p.start()
+                p.join()
 
     def _openbrowser(self, url):
         try:
@@ -97,7 +114,7 @@ class Core:
     def __init__(self, knownwikis,
                  base_url=None, search_parm=None,
                  alt_browser='', conv='', wiki='archwiki',
-                 offline=False, refresh=False, debug=False, ):
+                 offline=False, refresh=False, debug=False, noicon=False):
         """base_url (option -u) will override -wiki.url
         search_parm (option -s) will override -wiki.searchstring
         """
@@ -117,9 +134,10 @@ class Core:
         self.offline = offline
         self.refresh = refresh
         self.debug = debug
+        self.noicon = noicon
 
         if self.debug: __logger__.setLevel(logging.DEBUG)
         else: __logger__.setLevel(logging.INFO)
-
+        
         self.proxy = LazyProxy(self.base_url, debug=debug, conv=self.conv)
 

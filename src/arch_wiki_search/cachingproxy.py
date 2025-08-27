@@ -18,9 +18,9 @@ from aiohttp_client_cache import CachedSession, FileBackend
 
 try:
     import converters
-    from __init__ import __logger__, __version__, __name__, __url__, __contact__
+    from __init__ import __logger__, __version__, __name__, __url__, __contact__, Colors
 except ModuleNotFoundError:
-    from arch_wiki_search import converters, __logger__, __version__, __url__, __contact__
+    from arch_wiki_search import converters, __logger__, __version__, __url__, __contact__, Colors
 
 class LazyProxy:
     """Asynchronous caching http proxy that caches for a long time, manipulates responses,
@@ -54,7 +54,7 @@ class LazyProxy:
         loop = asyncio.get_running_loop()
         with ThreadPoolExecutor() as executor:
             result = await loop.run_in_executor(executor, _dirsize, self.cache_dir)
-            __logger__.info(f'Cache size: {self._hsize(result)}')
+            __logger__.info(f'{Colors.grey}Cache size: {self._hsize(result)}{Colors.reset}')
 
     async def printcachesize(self):
         """Asynchronously calculate total cache size and output in human readable format
@@ -80,7 +80,7 @@ class LazyProxy:
         site = web.TCPSite(self.runner, 'localhost', self.port)
         await site.start()
     
-        __logger__.info(f'Serving wiki on http://localhost:{self.port} - press < ctrl-c > to stop')
+        __logger__.info(f'Serving wiki on http://localhost:{self.port} - press {Colors.yellow}<ctrl-c>{Colors.green} to stop')
 
     async def stop(self):
         await self.runner.cleanup()
