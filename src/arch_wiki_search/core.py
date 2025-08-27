@@ -13,12 +13,12 @@ import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 
 try:
-    from __init__ import logger
-    from cachingproxy import CachingProxy
+    from __init__ import __logger__
+    from cachingproxy import LazyProxy
     import wikis
 except ModuleNotFoundError:
-    from arch_wiki_search import logger
-    from arch_wiki_search.cachingproxy import CachingProxy
+    from arch_wiki_search import __logger__
+    from arch_wiki_search.cachingproxy import LazyProxy
     from arch_wiki_search.wikis import Wikis
 
 class Core:
@@ -36,14 +36,14 @@ class Core:
     
     async def start(self):
         try:
-            await self.cachingproxy.start()
+            await self.proxy.start()
         except Exception as e:
-            logger.error(f'Failed to start caching proxy:\n{e}')
+            __logger__.error(f'Failed to start caching proxy:\n{e}')
             if self.debug:
                 print(traceback.format_exc())
             sys.exit(-3)
 
-        await self.cachingproxy.printcachesize()
+        await self.proxy.printcachesize()
 
     async def search(self, search_term = ''):
         url_path = ''
@@ -55,36 +55,36 @@ class Core:
         try:
             webbrowser.open(url)
         except Exception as e:
-            logger.error(f'Failed to start browser: {e}')
+            __logger__.error(f'Failed to start browser: {e}')
             if self.debug:
                 print(traceback.format_exc())
         else:
             self.current_url = url
-            logger.debug('Calling browser')
+            __logger__.debug('Calling browser')
 
     async def _go (self, url_path):
         if (not self.base_url.startswith(('http://', 'https://'))):
             err = f'Unsupported url: {self.base_url}'
-            logger.error(err)
+            __logger__.error(err)
             sys.exit(-2)
 
         dest_url = f'{self.base_url}{url_path}'
-        logger.debug(f'Caching and serving {dest_url}')
+        __logger__.debug(f'Caching and serving {dest_url}')
 
         #retrieve and if needed cache the requested page before the browser is called
-        await self.cachingproxy.fetch(url_path)
+        await self.proxy.fetch(url_path)
 
         #open browser asynchronously as otherwise the code would be blocking when there's no graphical
         #environment
         loop = asyncio.get_running_loop()
         with ThreadPoolExecutor() as executor:
             result = await loop.run_in_executor(executor,
-                self._openbrowser, f'http://localhost:{self.cachingproxy.port}/{dest_url}')
+                self._openbrowser, f'http://localhost:{self.proxy.port}/{dest_url}')
         
     async def stop(self):
         self._stop = True
-        await self.cachingproxy.stop()
-        await self.cachingproxy.printcachesize()
+        await self.proxy.stop()
+        await self.proxy.printcachesize()
 
     async def wait(self, secs=2):
         """Sleep and check for stop condition every X seconds
@@ -118,8 +118,8 @@ class Core:
         self.refresh = refresh
         self.debug = debug
 
-        if self.debug: logger.setLevel(logging.DEBUG)
-        else: logger.setLevel(logging.INFO)
+        if self.debug: __logger__.setLevel(logging.DEBUG)
+        else: __logger__.setLevel(logging.INFO)
 
-        self.cachingproxy = CachingProxy(self.base_url, debug=debug, conv=self.conv)
+        self.proxy = LazyProxy(self.base_url, debug=debug, conv=self.conv)
 

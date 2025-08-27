@@ -46,9 +46,9 @@ class AIOHTTPCustomFormatter(CustomFormatter):
     fields = '%a %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
 
 
-logger = logging.getLogger(__name__)
+__logger__ = logging.getLogger(__name__)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(CustomFormatter())
-logger.addHandler(ch)
+__logger__.addHandler(ch)
 

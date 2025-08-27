@@ -7,9 +7,9 @@ License: MIT
 import os
 import yaml
 try:
-    from __init__ import __name__, __newwikirequesturl__, logger
+    from __init__ import __name__, __newwikirequesturl__, __logger__
 except ModuleNotFoundError:
-    from arch_wiki_search.arch_wiki_search import __name__, __newwikirequesturl__, logger
+    from arch_wiki_search.arch_wiki_search import __name__, __newwikirequesturl__, __logger__
     
 class Wiki:
     name = ''
@@ -75,22 +75,22 @@ class Wikis(set):
                     docs = yaml.safe_load_all(f)
                 except Exception as e:
                     msg = f'Could not load yaml {path}: {e}'
-                    logger.error(msg)
+                    __logger__.error(msg)
                     raise Exception(msg)
                 for doc in docs:
                     try:
                         self.add(Wiki(doc['name'], doc['url'], doc['searchstring']))
                     except Exception as e:
-                        logger.warning(f'Could not read entry {doc} from file {path}')
+                        __logger__.warning(f'Could not read entry {doc} from file {path}')
                 f.close()
             except Exception as e:
                 msg = f'Could not load known wikis file {path}: {e}'
                 if (self.debug): print(msg)
-                logger.debug(msg)
+                __logger__.debug(msg)
         if len(self) == 0:
             msg = 'No known wikis found'
-            logger.error('No known wikis found')
+            __logger__.error('No known wikis found')
             raise KeyError(msg)
         else:
-            if (self.debug): logger.debug('Known wikis: ' + str(self))
+            if (self.debug): __logger__.debug('Known wikis: ' + str(self))
         

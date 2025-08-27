@@ -14,9 +14,9 @@ from markdownify import markdownify, BACKSLASH
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 
 try:
-    from __init__ import logger
+    from __init__ import __logger__
 except ModuleNotFoundError:
-    from arch_wiki_search import logger
+    from arch_wiki_search import __logger__
     
 class RawConverter:
     """Manipulates a aiohttp.ClientResponse to convert contents
@@ -54,7 +54,7 @@ class RawConverter:
             self.text = await self.response.text()
         except Exception as e:
             msg = 'Error reading response from server: ' + str(e)
-            logger.debug(msg)
+            __logger__.debug(msg)
             self.newresponse.text = msg
             return self.newresponse
         self.text = self._links_to_local()

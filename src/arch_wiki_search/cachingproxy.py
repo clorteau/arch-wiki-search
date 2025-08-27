@@ -18,11 +18,11 @@ from aiohttp_client_cache import CachedSession, FileBackend
 
 try:
     import converters
-    from __init__ import logger, __version__, __name__, __url__, __contact__
+    from __init__ import __logger__, __version__, __name__, __url__, __contact__
 except ModuleNotFoundError:
-    from arch_wiki_search import converters, logger, __version__, __url__, __contact__
+    from arch_wiki_search import converters, __logger__, __version__, __url__, __contact__
 
-class CachingProxy:
+class LazyProxy:
     """Asynchronous caching http proxy that caches for a long time, manipulates responses,
     and only serves one top domain
     """
@@ -54,7 +54,7 @@ class CachingProxy:
         loop = asyncio.get_running_loop()
         with ThreadPoolExecutor() as executor:
             result = await loop.run_in_executor(executor, _dirsize, self.cache_dir)
-            logger.info(f'Cache size: {self._hsize(result)}')
+            __logger__.info(f'Cache size: {self._hsize(result)}')
 
     async def printcachesize(self):
         """Asynchronously calculate total cache size and output in human readable format
@@ -80,7 +80,7 @@ class CachingProxy:
         site = web.TCPSite(self.runner, 'localhost', self.port)
         await site.start()
     
-        logger.info(f'Serving wiki on http://localhost:{self.port} - press < ctrl-c > to stop')
+        __logger__.info(f'Serving wiki on http://localhost:{self.port} - press < ctrl-c > to stop')
 
     async def stop(self):
         await self.runner.cleanup()
@@ -90,7 +90,7 @@ class CachingProxy:
         await self.cache.clear()
 
     async def _on_fetch_request_end(self, session, trace_config_ctx, params):
-        logger.debug(f'Request: {params}')
+        __logger__.debug(f'Request: {params}')
 
     async def _fetch(self, urlpath):
         url = self.base_url + '/' + urlpath
@@ -107,7 +107,7 @@ class CachingProxy:
             except Exception as e:
                 msg = f'Failed to fetch URL: {url}'
                 trace = traceback.format_exc()
-                logger.error(f'{msg}\n{e}')
+                __logger__.error(f'{msg}\n{e}')
                 text = f'\
                     <!DOCTYPE html><html>\
                     <h3>{msg}</h3>'
@@ -124,14 +124,14 @@ class CachingProxy:
         resp = await self._fetch(urlpath)
         assert resp != None
         expires = resp.expires.isoformat() if resp.expires else 'Never'
-        logger.debug(f'{resp.url} expires: {expires}')
+        __logger__.debug(f'{resp.url} expires: {expires}')
         return resp
 
     async def _get_handler(self, request, ):
         """Fetches the requested page, manipulates it and responds with it
         Also caches one level of links in the background
         """
-        logger.debug(f'Got request: {request}')
+        __logger__.debug(f'Got request: {request}')
 
         #the full URL to fetch is passed as the request's path; extract the target path
         url = request.raw_path
@@ -164,7 +164,7 @@ class CachingProxy:
             if Counter(links) != Counter(self.previouslinks):
                 for link in links:
                     if link.startswith('/'): link = link[1:]
-                    logger.debug(f'Precaching {link}')
+                    __logger__.debug(f'Precaching {link}')
                     asyncio.create_task(self._fetch(link)) #don't wait for it
 
         await newresponse.prepare(request)
@@ -180,7 +180,7 @@ class CachingProxy:
 
         if (not self.base_url.startswith(('http://', 'https://'))):
             err = f'Unsupported url: {self.base_url}'
-            logger.error(err)
+            __logger__.error(err)
             sys.exit(-2)
 
         if os.name == 'posix': 
@@ -190,18 +190,18 @@ class CachingProxy:
 
         if os.path.isdir(self.cache_dir):
             if os.access(self.cache_dir, os.W_OK):
-                logger.debug(f'The cache directory {self.cache_dir} exists and is writable')
+                __logger__.debug(f'The cache directory {self.cache_dir} exists and is writable')
             else:
                 err = f'The cache directory {self.cache_dir} is not writable'
-                logger.critical(err)
+                __logger__.critical(err)
                 print(traceback.format_exc())
                 sys.exit(-4)
         else:
             try:
                 os.makedirs(self.cache_dir)
-                logger.info(f'Created cache directory {self.cache_dir}')
+                __logger__.info(f'Created cache directory {self.cache_dir}')
             except Exception as e:
-                logger.critical(f'Failed to create cache directory {self.cache_dir}')
+                __logger__.critical(f'Failed to create cache directory {self.cache_dir}')
                 print(traceback.format_exc())
                 sys.exit(-4)
 

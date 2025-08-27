@@ -10,6 +10,8 @@ License: MIT
 #TODO: arg to change number of days before cache expiry
 #TODO: prompt while serving to search other terms
 #TODO: option to select language
+#TODO: desktop entry, notification icon with menu entry per yaml entry
+#TODO: converters: keep only article content (tag main, id=content?)
 
 import os
 import sys
@@ -17,12 +19,12 @@ import asyncio
 import argparse
 
 try:
-    from __init__ import __name__, __version__, __url__, __newwikirequesturl__, logger
+    from __init__ import __name__, __version__, __url__, __newwikirequesturl__, __logger__
     from exchange import ZIP
     from core import Core
     from wikis import Wikis
 except ModuleNotFoundError:
-    from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, logger
+    from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, __logger__
     from arch_wiki_search.exchange import ZIP
     from arch_wiki_search.core import Core
     from arch_wiki_search.wikis import Wikis
@@ -39,18 +41,18 @@ async def _main(core, search):
         await core.wait()
     except asyncio.CancelledError:
         print('')
-        logger.info('Stopping')
+        __logger__.info('Stopping')
     await core.stop()
 
 async def _clear(core):
     """Clear the cache
     """
-    await core.cachingproxy.printcachesize()
-    logger.warning('This will clear your cache - are you sure? (type \'Yes\')')
+    await core.proxy.printcachesize()
+    __logger__.warning('This will clear your cache - are you sure? (type \'Yes\')')
     a = input ('> ') #TODO: prompts in curses
     if a != 'Yes': sys.exit(-7)
-    await core.cachingproxy.clear()
-    await core.cachingproxy.printcachesize()
+    await core.proxy.clear()
+    await core.proxy.printcachesize()
 
 def main():
     """Load pre-configured base_url/searchstring pairs from yaml file
@@ -61,7 +63,7 @@ def main():
     try:
         knownwikis = Wikis(debug=debug)
     except Exception as e:
-        logger.error(e)
+        __logger__.error(e)
         print(knownwikis.gethelpstring())
         sys.exit(-6)
     
@@ -116,7 +118,7 @@ txt: convert to plain text
     except SystemExit as e:
         if e.code != 0:
             msg = f'Could not parse {e} arguments'
-            logger.critical(msg)
+            __logger__.critical(msg)
             print(knownwikis.gethelpstring())
         sys.exit(e.code)
 
@@ -154,16 +156,16 @@ txt: convert to plain text
 
     if (args.export):
         if (args.merge):
-            logger.critical('--export and --merge can\'t be used together')
+            __logger__.critical('--export and --merge can\'t be used together')
             sys.exit(-6)
-        ZIP().export(core.cachingproxy.cache_dir)
+        ZIP().export(core.proxy.cache_dir)
         sys.exit(0)
 
     if (args.merge):
         if args.export:
-            logger.critical('--export and --merge can\'t be used together')
+            __logger__.critical('--export and --merge can\'t be used together')
             zip.exit(-6)
-        ZIP().merge(core.cachingproxy.cache_dir, args.merge)
+        ZIP().merge(core.proxy.cache_dir, args.merge)
         sys.exit(0)
 
     try:
