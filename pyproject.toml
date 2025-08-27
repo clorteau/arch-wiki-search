@@ -27,7 +27,6 @@ dependencies = [ "aiohttp_client_cache",
                  "pyyaml",
                  "markdownify",
                  "markdown"]
-
 readme = "README.md"
 requires-python = ">=3.6"
 classifiers = [
@@ -46,9 +45,11 @@ keywords = ["wiki", "arch", "python"]
 Homepage = "https://github.com/clorteau/arch-wiki-search"
 Issues = "https://github.com/clorteau/arch-wiki-search/issues"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/arch_wiki_search"]
+[project.optional-dependencies]              
+  gui = ["pyqt6",]
 
 [project.scripts]
-#[console_scripts]
 arch-wiki-search = "arch_wiki_search.arch_wiki_search:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arch_wiki_search"]
