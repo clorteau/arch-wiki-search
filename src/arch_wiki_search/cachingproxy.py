@@ -6,6 +6,7 @@ License: MIT
 
 import os
 import sys
+import socket
 import logging
 import asyncio
 import traceback
@@ -32,7 +33,7 @@ class CachingProxy:
     cache = None
     app = None
     debug = False
-    port = 8888 #TODO: set to available port automatically
+    port = 8888 #will be set to available port by start()
     runner = None
 
     def _hsize(self, size):
@@ -64,6 +65,13 @@ class CachingProxy:
     async def start(self):
         assert self.cache != None            
         server = web.Server(self._get_handler, debug=self.debug)
+
+        #find available port number to bind to
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('localhost', 0))  # 0 = available port
+        port = sock.getsockname()[1]
+        sock.close()
+        self.port = port
 
         #start in separate thread
         self.runner = web.ServerRunner(server)
