@@ -46,9 +46,10 @@ options:
   -c, --conv {raw,clean,txt}
                         conversion mode:
                         raw: no conversion (but still remove binaries)
-                        clean: convert to simple html (basic formatting, no styles or scripts)
+                        clean: convert to cleaner html (no styles or scripts)
+                        basic: convert to basic HTML
                         txt: convert to plain text
-                        [Default: 'raw' in graphical environment, 'clean' otherwise]
+                        [Default: 'raw' in graphical environment, 'basic' in text mode]
   --offline, --test     Don't try to go online, only use cached copy if it exists
   --refresh             Force going online and refresh the cache
   -v, --version         Print version number and exit

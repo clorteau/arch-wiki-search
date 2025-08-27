@@ -11,6 +11,7 @@ License: MIT
 #TODO: prompt while serving to search other terms
 #TODO: option to select language
 
+import os
 import sys
 import asyncio
 import argparse
@@ -119,18 +120,26 @@ txt: convert to plain text
             print(knownwikis.gethelpstring())
         sys.exit(e.code)
 
-    if (args.version):
+    if args.version:
         print(__version__)
         sys.exit(0)
 
-    if (not args.search):
+    if not args.search:
         search = ''
     else:
         search = args.search
 
+    if not args.conv:
+        if 'DISPLAY' in os.environ:
+            conv = 'raw'
+        else:
+            conv = 'basic'
+    else:
+        conv = args.conv
+
     core = Core(knownwikis,
                 # alt_browser=args.browser,
-                conv=args.conv,
+                conv=conv,
                 base_url=args.url, 
                 search_parm=args.searchstring,
                 offline=args.offline,

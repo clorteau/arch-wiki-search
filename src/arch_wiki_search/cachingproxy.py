@@ -144,7 +144,6 @@ class CachingProxy:
         elif self.conv == 'basic':
             converter = converters.BasicHTMLConverter(response, self.base_url, self.port)
         else:
-            #TODO: detect if running in graphical envrionment or console
             converter = converters.RawConverter(response, self.base_url, self.port)
         newresponse = await converter.convert()
 
