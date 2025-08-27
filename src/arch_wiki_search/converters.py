@@ -6,9 +6,11 @@ License: MIT
 
 import warnings
 import html5lib
+import markdown
 import lxml_html_clean
 from aiohttp import web
 from aiohttp_client_cache import CachedResponse
+from markdownify import markdownify, BACKSLASH
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 
 try:
@@ -81,28 +83,41 @@ class CleanHTMLConverter(RawConverter):
         self.newresponse.text = self.text
         return self.newresponse
 
+class MDConverter(RawConverter):
+    async def convert(self):
+        """Converts a HTML page to markdown
+        """
+        newresponse = await super().convert()
+        text = newresponse.text
+        soup = BeautifulSoup(text, 'html.parser') # parse html
+        self.text = markdownify(str(soup), newline_style=BACKSLASH) #to markdown
+        self.newresponse.text = self.text
+        self.newresponse.content_type = 'text/markdown'
+        return self.newresponse
+
+class BasicHTMLConverter(MDConverter):
+    async def convert(self):
+        """Converts to basic HTML
+        """
+        newresponse = await super().convert()
+        text = newresponse.text #that's markdown
+        self.text = markdown.markdown(text) #convert back to html
+        self.newresponse.text = self.text
+        self.newresponse.content_type = 'text/html'
+        return self.newresponse
+
 class TxtConverter(RawConverter):
     async def convert(self):
         """Only keeps text
         """
-        try:
-            self.text = await self.response.text()
-        except Exception as e:
-            msg = 'Error reading response from server: ' + str(e)
-            self.newresponse.text = msg
-            return self.newresponse
-        self.text = super()._links_to_local()
-
-        bs = BeautifulSoup(self.text, 'lxml')
-        for tag in bs.find_all('script', 'iframe', 'frame', 'style'):
-            tag.decompose()
-        text = bs.get_text()
-
-        # remove extra new lines
-        text = text.replace('\r\n\r\n\r\n', '\r\n\r\n')
-        text = text.replace('\n\n\n', '\n\n')
-
-        self. text = text
+        newresponse = await super().convert()
+        text = newresponse.text #that's html
+        soup = BeautifulSoup(text, 'html.parser') # parse html
+        for a in soup.find_all('a'): a.unwrap() # remove links
+        for img in soup.find_all('img'): img.unwrap() # remove images
+        self.text = markdownify(str(soup), newline_style=BACKSLASH) #to markdown
+        soup = BeautifulSoup(self.text, 'html.parser') # parse again
+        self.text = soup.get_text() # finally, to text
         self.newresponse.text = self.text
         self.newresponse.content_type = 'text/plain'
         return self.newresponse

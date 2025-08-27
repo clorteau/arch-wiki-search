@@ -24,7 +24,9 @@ dependencies = [ "aiohttp_client_cache",
                  "lxml_html_clean",
                  "beautifulsoup4",
                  "html5lib",
-                 "pyyaml"]
+                 "pyyaml",
+                 "markdownify",
+                 "markdown"]
 
 readme = "README.md"
 requires-python = ">=3.6"

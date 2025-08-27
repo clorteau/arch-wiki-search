@@ -7,3 +7,5 @@ lxml_html_clean
 beautifulsoup4
 html5lib
 pyyaml
+markdownify #TODO: not sure if keep markdownify
+markdown

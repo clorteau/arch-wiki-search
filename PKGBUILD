@@ -17,6 +17,8 @@ depends=(
     "python-beautifulsoup4"
     "python-html5lib"
     "python-yaml"
+    "python-markdownify"
+    "python-markdown"
 )
 makedepends=(
     "python-build"

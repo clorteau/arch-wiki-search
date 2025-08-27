@@ -5,7 +5,6 @@
 License: MIT
 """
 
-#TODO: convert html to markdown
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: arg to change number of days before cache expiry
@@ -86,12 +85,14 @@ Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{form
     parser.add_argument('-s', '--searchstring', default=None,
                          help='alternative search string (ex: \"/wiki/Special:Search?go=Go&search=\", \"/FrontPage?action=fullsearch&value=\")')
     parser.add_argument('-c', '--conv', default=None,
-                        choices=['raw', 'clean', 'txt'],
+                        choices=['raw', 'clean', 'basic', 'md', 'txt'],
                         help='''conversion mode:
 raw: no conversion (but still remove binaries)
-clean: convert to simple html (basic formatting, no styles or scripts)
+clean: convert to cleaner HTML (remove styles and scripts)
+basic: convert to basic HTML
+md: convert to markdown
 txt: convert to plain text
-[Default: \'raw\' in graphical environment, \'clean\' otherwise]''',)
+[Default: \'raw\' in graphical environment, \'basic\' otherwise]''',)
     parser.add_argument('--offline', '--test', default=False, action='store_true',
                          help='Don\'t try to go online, only use cached copy if it exists')
     parser.add_argument('--refresh', default=False, action='store_true',

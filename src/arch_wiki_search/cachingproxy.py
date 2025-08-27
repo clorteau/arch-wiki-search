@@ -139,6 +139,10 @@ class CachingProxy:
             converter = converters.CleanHTMLConverter(response, self.base_url, self.port)
         elif self.conv == 'txt':
             converter = converters.TxtConverter(response, self.base_url, self.port)
+        elif self.conv == 'md':
+            converter = converters.MDConverter(response, self.base_url, self.port)
+        elif self.conv == 'basic':
+            converter = converters.BasicHTMLConverter(response, self.base_url, self.port)
         else:
             #TODO: detect if running in graphical envrionment or console
             converter = converters.RawConverter(response, self.base_url, self.port)

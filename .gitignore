@@ -1,8 +1,5 @@
 __pycache__
-<<<<<<< HEAD
-=======
 #.vscode/launch.json
 #.vscode/settings.json
->>>>>>> main
 *.zip
 dist
