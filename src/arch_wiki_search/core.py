@@ -11,14 +11,17 @@ import asyncio
 import traceback
 import webbrowser
 import urllib.parse
-from multiprocessing import Process, Value
+import subprocess
+# from multiprocessing import Process, Manager
 from concurrent.futures import ThreadPoolExecutor
 
 try:
-    from __init__ import __logger__
+    from __init__ import __logger__, __icon__, Colors
+    from exchange import StopFlag
     from cachingproxy import LazyProxy
 except ModuleNotFoundError:
-    from arch_wiki_search import __logger__
+    from arch_wiki_search import __logger__, __icon__, Colors
+    from arch_wiki_search.exchange import StopFlag
     from arch_wiki_search.cachingproxy import LazyProxy
     from arch_wiki_search.wikis import Wikis
 
@@ -33,8 +36,9 @@ class Core:
     offline = False
     refresh = False
     debug = False
-    qt6app = None
-    _stop = False
+    noicon = False
+    _notifIconStarted = False 
+    _stop = False #will shutdown if set to True
     
     async def start(self):
         try:
@@ -44,7 +48,11 @@ class Core:
             if self.debug:
                 print(traceback.format_exc())
             sys.exit(-3)
-
+        msg = f'Serving wiki on http://localhost:{self.proxy.port} - {Colors.yellow}<ctrl-c>{Colors.green}'
+        if self._notifIconStarted:
+            msg += f' or {__icon__}{Colors.yellow}🡪 Exit{Colors.green}'
+        msg += ' to stop'
+        __logger__.info(msg)
         await self.proxy.printcachesize()
 
     async def search(self, search_term = ''):
@@ -53,19 +61,22 @@ class Core:
             url_path = self.search_parm + urllib.parse.quote_plus(search_term)
         await self._go(url_path)
 
-    async def spawnIcon(self):
+    def spawnIcon(self):
         if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
             try:
                 from PyQt6.QtWidgets import QApplication
             except ModuleNotFoundError:
                 __logger__.error('PyQT6 not found, not showing a notification icon')
             else:
-                # run the QT app loop in a separate process
                 __logger__.info('Spawning notification icon')
-                from notification import NotifIcon
-                stopFlag = Value('b', 0) #FIXME: stopflag doesn't seem to get update
-                p = Process(target=NotifIcon.start, args=(stopFlag,))
-                p.start()
+                # run the QT app loop in a subprocess
+                try:
+                    path = os.path.dirname(os.path.realpath(__file__)) + '/notification.py'
+                    process = subprocess.Popen(['python', path])
+                except Exception as e:
+                    msg = f'Failed to start notification icon: {e}'
+                    __logger__.error(msg)
+                self._notifIconStarted = True
 
     def _openbrowser(self, url):
         try:
@@ -101,13 +112,16 @@ class Core:
         self._stop = True
         await self.proxy.stop()
         await self.proxy.printcachesize()
+        self.stopFlag.delete()
 
-    async def wait(self, secs=2):
-        """Sleep and check for stop condition every X seconds
-        TODO: proper stop condition
+    async def wait(self, secs=1):
+        """Sleep and check for stop flag every X seconds
         """
         while not self._stop:
-            # if keyboard.is_pressed('q'): self._stop = true #bs needs root
+            flag = self.stopFlag.read()
+            if flag == True:
+                self._stop = True
+                break
             await asyncio.sleep(secs)
 
     def __init__(self, knownwikis,
@@ -117,6 +131,8 @@ class Core:
         """base_url (option -u) will override -wiki.url
         search_parm (option -s) will override -wiki.searchstring
         """
+        self.stopFlag = StopFlag() #will be written to True by the QT gui to stop the proxy
+
         assert knownwikis
         for w in knownwikis:
             if w.name == wiki:

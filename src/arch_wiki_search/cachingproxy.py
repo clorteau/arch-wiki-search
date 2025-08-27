@@ -18,9 +18,9 @@ from aiohttp_client_cache import CachedSession, FileBackend
 
 try:
     import converters
-    from __init__ import __logger__, __version__, __name__, __url__, __contact__, Colors
+    from __init__ import __logger__, __version__, __name__, __url__, __contact__, __icon__, Colors
 except ModuleNotFoundError:
-    from arch_wiki_search import converters, __logger__, __version__, __url__, __contact__, Colors
+    from arch_wiki_search import converters, __logger__, __version__, __url__, __contact__, __icon__, Colors
 
 class LazyProxy:
     """Asynchronous caching http proxy that caches for a long time, manipulates responses,
@@ -79,10 +79,9 @@ class LazyProxy:
         await self.runner.setup()
         site = web.TCPSite(self.runner, 'localhost', self.port)
         await site.start()
-    
-        __logger__.info(f'Serving wiki on http://localhost:{self.port} - press {Colors.yellow}<ctrl-c>{Colors.green} to stop')
 
     async def stop(self):
+        __logger__.info('Stopping')
         await self.runner.cleanup()
         await self.cache.close()
 
@@ -159,7 +158,7 @@ class LazyProxy:
         links = converters.RawConverter(newresponse, self.base_url, self.port).gethrefs()
         if self.previouslinks == None: 
             self.previouslinks = links
-        # don't do it recursively and vacuum the whole site
+        # don't do it recursively
         else:
             if Counter(links) != Counter(self.previouslinks):
                 for link in links:

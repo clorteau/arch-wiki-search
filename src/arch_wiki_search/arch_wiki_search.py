@@ -12,6 +12,7 @@ License: MIT
 #TODO: option to select language
 #TODO: desktop entry, notification icon with menu entry per yaml entry
 #TODO: converters: keep only article content (tag main, id=content?)
+#TODO: text mode corner icon
 
 import os
 import sys
@@ -19,12 +20,12 @@ import asyncio
 import argparse
 
 try:
-    from __init__ import __name__, __version__, __url__, __newwikirequesturl__, __logger__
+    from __init__ import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__
     from exchange import ZIP
     from core import Core
     from wikis import Wikis
 except ModuleNotFoundError:
-    from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, __logger__
+    from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__
     from arch_wiki_search.exchange import ZIP
     from arch_wiki_search.core import Core
     from arch_wiki_search.wikis import Wikis
@@ -35,14 +36,13 @@ format_bold = '\033[1m'
 format_reset = '\033[0m'
 
 async def _main(core, search):
+    core.spawnIcon()
     await core.start()
-    await core.spawnIcon()
     try:
         await core.search(search)
         await core.wait()
     except asyncio.CancelledError:
         print('')
-        __logger__.info('Stopping')
     await core.stop()
 
 async def _clear(core):
@@ -107,6 +107,8 @@ txt: convert to plain text
                         help='Export cache as .zip file')
     parser.add_argument('-m', '--merge', default=None,
                         help='Import and merge cache from a zip file created with --export') #TODO validate the import
+    parser.add_argument('-ni', '--noicon', default=False, action='store_true',
+                         help=f'Don\'t show the {__icon__}icon in the corner')
     parser.add_argument('--clear', default=False, action='store_true',
                         help='Clear cache and exit')
     parser.add_argument('-d', '--debug', default=False, action='store_true')
@@ -149,6 +151,7 @@ txt: convert to plain text
                 refresh=args.refresh,
                 debug=args.debug,
                 wiki=args.wiki,
+                noicon=args.noicon,
                 )
 
     if (args.clear):
