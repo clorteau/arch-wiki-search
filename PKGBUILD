@@ -27,6 +27,7 @@ makedepends=(
 )
 optdepends=(
     "python-pyqt6: control through notification area on desktop"
+    "python-textual: control through start menu like icon on console"
     "elinks: console browsing"
     "w3m: console browsing"
     "firefox: desktop environment browsing"

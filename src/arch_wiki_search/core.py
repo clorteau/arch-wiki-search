@@ -63,20 +63,46 @@ class Core:
 
     def spawnIcon(self):
         if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
+            self.spawnIconGUI()
+        elif not self.noicon: #No GUI, no --noicon
+            self.spawnIconTUI()
+
+    def spawnIconGUI(self):
+        try:
+            from PyQt6.QtWidgets import QApplication
+        except ModuleNotFoundError:
+            __logger__.error('PyQT6 not found, not showing a notification icon')
+        else:
+            __logger__.info('Spawning notification icon')
+            # run the QT app loop in a subprocess
             try:
-                from PyQt6.QtWidgets import QApplication
-            except ModuleNotFoundError:
-                __logger__.error('PyQT6 not found, not showing a notification icon')
-            else:
-                __logger__.info('Spawning notification icon')
-                # run the QT app loop in a subprocess
-                try:
-                    path = os.path.dirname(os.path.realpath(__file__)) + '/notification.py'
-                    process = subprocess.Popen(['python', path])
-                except Exception as e:
-                    msg = f'Failed to start notification icon: {e}'
-                    __logger__.error(msg)
+                path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
+                process = subprocess.Popen(['python', path])
                 self._notifIconStarted = True
+            except Exception as e:
+                msg = f'Failed to start notification icon: {e}'
+                __logger__.error(msg)
+
+    def spawIconTUI(self):
+        return #not working right see FIXME
+        try:
+            from textual.app import App
+        except ModuleNotFoundError:
+            __logger__.error('Textual not found, not showing an icon')
+        else:
+            from icontxt import TXTIcon
+            #Textual is based on asyncio so plug into the loop
+            #FIXME: bring to front (libtmux?)
+            try:
+                async def runicon():
+                    icon = TXTIcon()
+                    await icon.run_async()                   
+                loop = asyncio.get_running_loop()
+                loop.create_task(runicon())
+                self._notifIconStarted = True
+            except Exception as e:
+                msg = f'Failed to start notification icon: {e}'
+                __logger__.error(msg)
 
     def _openbrowser(self, url):
         try:

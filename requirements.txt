@@ -10,3 +10,4 @@ pyyaml
 markdownify #TODO: not sure if keep markdownify
 markdown
 pyqt6[gui]
+textual[tui]

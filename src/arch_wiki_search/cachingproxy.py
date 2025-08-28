@@ -140,6 +140,7 @@ class LazyProxy:
         response = await self.fetch(path)
 
         # convert result
+        __logger__.debug('Converter: ' + self.conv)
         if self.conv == 'raw':
             converter = converters.RawConverter(response, self.base_url, self.port)
         elif self.conv == 'clean':
@@ -155,16 +156,17 @@ class LazyProxy:
         newresponse = await converter.convert()
 
         # silently try and pre-cache one level of links in separate threads
-        links = converters.RawConverter(newresponse, self.base_url, self.port).gethrefs()
-        if self.previouslinks == None: 
-            self.previouslinks = links
-        # don't do it recursively
-        else:
-            if Counter(links) != Counter(self.previouslinks):
-                for link in links:
-                    if link.startswith('/'): link = link[1:]
-                    __logger__.debug(f'Precaching {link}')
-                    asyncio.create_task(self._fetch(link)) #don't wait for it
+        if False: #TODO: test pre-caching more
+            links = converters.RawConverter(newresponse, self.base_url, self.port).gethrefs()
+            if self.previouslinks == None: 
+                self.previouslinks = links
+            # don't do it recursively
+            else:
+                if Counter(links) != Counter(self.previouslinks):
+                    for link in links:
+                        if link.startswith('/'): link = link[1:]
+                        __logger__.debug(f'Precaching {link}')
+                        asyncio.create_task(self._fetch(link)) #don't wait for it
 
         await newresponse.prepare(request)
         return newresponse

@@ -47,6 +47,7 @@ Issues = "https://github.com/clorteau/arch-wiki-search/issues"
 
 [project.optional-dependencies]              
   gui = ["pyqt6",]
+  tui = ["textual",]
 
 [project.scripts]
 arch-wiki-search = "arch_wiki_search.arch_wiki_search:main"
