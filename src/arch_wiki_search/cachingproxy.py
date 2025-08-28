@@ -124,8 +124,11 @@ class LazyProxy:
         resp = None
         try:
             resp = await self._fetch(urlpath)
-            if hasattr(resp, 'expires'): expires = resp.expires.isoformat()
-            else: expires = 'Never' #TODO: test more
+            try:
+                if hasattr(resp, 'expires'): expires = resp.expires.isoformat()
+            except Exception as e:
+                __logger__.debug(f'Error reading \'expires\' attribute so defaulted to \'Never\': {e}')
+                expires = 'Never' #TODO: test more
             if hasattr(resp, 'url'):
                 __logger__.debug(f'{resp.url} expires: {expires}')
         except Exception as e:
