@@ -69,7 +69,7 @@ class Core:
 
     def spawnIconGUI(self):
         try:
-            from PyQt6.QtWidgets import QApplication
+            from PyQt6.QtCore import Qt
         except ModuleNotFoundError:
             __logger__.error('PyQT6 not found, not showing a notification icon')
         else:
