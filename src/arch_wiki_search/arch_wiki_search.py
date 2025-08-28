@@ -110,7 +110,7 @@ txt: convert to plain text
     parser.add_argument('-m', '--merge', default=None,
                         help='Import and merge cache from a zip file created with --export') #TODO validate the import
     parser.add_argument('-ni', '--noicon', default=False, action='store_true',
-                         help=f'Don\'t show the {__icon__} icon in the corner')
+                         help=f'Don\'t show the {__icon__} notification area icon - only <ctrl+c> will stop')
     parser.add_argument('--clear', default=False, action='store_true',
                         help='Clear cache and exit')
     parser.add_argument('-d', '--debug', default=False, action='store_true')
