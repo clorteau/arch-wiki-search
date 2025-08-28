@@ -122,7 +122,8 @@ class LazyProxy:
         """
         resp = await self._fetch(urlpath)
         assert resp != None
-        expires = resp.expires.isoformat() if resp.expires else 'Never'
+        if resp.expires: expires = resp.expires.isoformat()
+        else: expires = 'Never'
         __logger__.debug(f'{resp.url} expires: {expires}')
         return resp
 
