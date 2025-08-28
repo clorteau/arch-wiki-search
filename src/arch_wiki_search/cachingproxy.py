@@ -105,26 +105,35 @@ class LazyProxy:
                                                             'Accept-Encoding': 'gzip'})
             except Exception as e:
                 msg = f'Failed to fetch URL: {url}'
-                trace = traceback.format_exc()
-                __logger__.error(f'{msg}\n{e}')
-                text = f'\
-                    <!DOCTYPE html><html>\
-                    <h3>{msg}</h3>'
-                if (self.debug): text += f'<code>{trace.replace('\n', '<br/>\n')}</code>'
-                text += '</html>'
-                return web.Response(content_type='text/html', text=text)
+                desc = e.args[0]
+                __logger__.error(f'{msg} - {desc}')
+                resptext = f'<!DOCTYPE html><html><h3>{msg}</h3><quote>{desc}</quote>'
+                resptext += '<p>TODO: help page when offline or server down and not in cache</p>'
+                if self.debug: 
+                    trace = traceback.format_exc()
+                    trace = trace.replace('\n', '<br/>\n')
+                    resptext += f'<code>{trace}</code>'
+                resptext += '</html>'
+                return web.Response(content_type='text/html', text=resptext)
             await session.close()
-        # logger.debug(f'Request: {resp.request_info.headers}')
         return resp
 
     async def fetch(self, urlpath):
         """Retrieves contents at base_url/urlpath
         """
-        resp = await self._fetch(urlpath)
-        assert resp != None
-        if resp.expires: expires = resp.expires.isoformat()
-        else: expires = 'Never'
-        __logger__.debug(f'{resp.url} expires: {expires}')
+        resp = None
+        try:
+            resp = await self._fetch(urlpath)
+            try:
+                if hasattr(resp, 'expires'): expires = resp.expires.isoformat()
+            except Exception as e:
+                __logger__.debug(f'Error reading \'expires\' attribute so defaulted to \'Never\': {e}')
+                expires = 'Never' #TODO: test more
+            if hasattr(resp, 'url'):
+                __logger__.debug(f'{resp.url} expires: {expires}')
+        except Exception as e:
+            msg = f'Error trying to load the page at {urlpath}: {e}'
+            __logger__.error(msg)
         return resp
 
     async def _get_handler(self, request, ):

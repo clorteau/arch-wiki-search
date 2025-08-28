@@ -52,12 +52,13 @@ class RawConverter:
     async def convert(self):
         try:
             self.text = await self.response.text()
+            self.text = self._links_to_local()
+        except TypeError:
+            self.text = self.response.text # text is already available (likely we set it as part of error handling)
         except Exception as e:
             msg = 'Error reading response from server: ' + str(e)
             __logger__.debug(msg)
-            self.newresponse.text = msg
-            return self.newresponse
-        self.text = self._links_to_local()
+            self.text = msg
         self.newresponse.text = self.text
         return self.newresponse
 
