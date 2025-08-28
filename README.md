@@ -58,7 +58,7 @@ options:
   -v, --version         Print version number and exit
   -x, --export          Export cache as .zip file
   -m, --merge MERGE     Import and merge cache from a zip file created with --export
-  -ni, --noicon         Don't show the 📚 notification area icon
+  -ni, --noicon         Don't show the 📚 notification area icon - only <ctrl+c> will stop
   --clear               Clear cache and exit
   -d, --debug
 
