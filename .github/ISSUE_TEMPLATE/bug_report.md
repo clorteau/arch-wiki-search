@@ -3,28 +3,32 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: ''
-assignees: ''
+assignees: clorteau
 
 ---
+(this is a template, edit as needed)
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+\<Here include in a few words what you expected to happen and what happened instead.\>
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Make sure you the command with the -d flag
-2. Exact command to type:
+\<Here include details about your environment\>
 
+For instance:
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+***Environment***
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+- Graphical/Console
+	+ Graphical: Gnome/KDE/Wayland/X11/Windows/MacOS...
+	+ Console: ssh, local terminal...
+- OS
+	+ Linux (which distro?)
+	+ Windows
+	+ MacOS
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
+**Install channel**
+- AUR
+- PyPI
+- Snap
+- git clone
 
 
 

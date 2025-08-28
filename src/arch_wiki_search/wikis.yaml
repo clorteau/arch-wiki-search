@@ -3,7 +3,7 @@ url: 'https://wiki.archlinux.org'
 searchstring: '/index.php?search='
 ---
 name: wikipedia
-url: 'https://wikipedia.org'
+url: 'https://en.wikipedia.org'
 searchstring: '/wiki/Special:Search?go=Go&search='
 ---
 name: discovery
