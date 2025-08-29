@@ -7,7 +7,6 @@ import os
 import pickle
 import tempfile
 from datetime import datetime
-from multiprocessing import shared_memory
 from zipfile import ZipFile, ZIP_DEFLATED
 # try:
 #     from __init__ import __logger__, PACKAGE_NAME
@@ -15,6 +14,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 #     from arch_wiki_search.arch_wiki_search import __logger__, PACKAGE_NAME
 # from run import __logger__, PACKAGE_NAME
 from __init__ import __logger__, PACKAGE_NAME
+import core
 
 class ZIP:
     """Read and write whole caches as ZIP files
@@ -51,8 +51,7 @@ class StopFlag:
     """
     filePath = None
 
-    def write(self, b):
-        assert (b == True or b == False)
+    def write(self, b: bool):
         with open(self.filePath, 'w') as temp_file:
             temp_file.write(str(b))
             self.filePath = temp_file.name
@@ -83,7 +82,7 @@ class StopFlag:
         if os.path.exists(self.filePath):
             self.delete()
         else:
-            self.write(False)
+            self.write(False)    
 
 class DATA:
     """Class that will be serialized to exchange between processes
@@ -94,19 +93,74 @@ class DATA:
     port = 0
     favicon = ''
 
+    def serialize(self) -> bytes:
+        b = pickle.dumps(self)
+        return b
+
+    @staticmethod
+    def deserialize(b: bytes):
+        data = pickle.loads(b)
+        return data
+
+class CoreDescriptorFile:
+    """Info exposed by each running core for UIs to read from through a temp file
+    TODO: make sure the file is in RAM for speed
+    """
+    path = ''
+    path_pattern = ''
+    data = None
+
+    def __init__(self, port: int):
+        # one file per core so UIs can show multiple wikis at once
+        self.path = CoreDescriptorFile.get_path_pattern() + str(port)
+        self.data = DATA()
+        self.data.port = port
+
+    @staticmethod
+    def get_path_pattern():
+        return os.path.join(tempfile.gettempdir(), f'{PACKAGE_NAME}.core.')
+
+    def write_data(self):
+        b = self.data.serialize()
+        try:
+            with open(self.path, 'wb') as f:
+                f.write(b)
+            __logger__.debug(f'Wrote core info temp file {self.path}')
+        except Exception as e:
+            msg = f'Failed to write core info to temp file {self.path}: {e}'
+            __logger__.warning(msg)
+
+    def read_data(self):
+        try:
+            with open(self.path, 'rb') as f:
+                b = f.read()
+                self.data = DATA.deserialize(b)
+                __logger__.debug(f'Read from core info temp file {self.path}')
+                return self.data
+        except Exception as e:
+            msg = f'Failed to read core info from temp file {self.path}: {e}'
+            __logger__.warning(msg)
+
+    def delete(self):
+        if (self.path != None):
+            try:
+                os.remove(self.path)
+            except Exception as e:
+                msg = f'Could not delete temp file {self.path}: {e}'
+                __logger__.warning(msg)
+
 class SharedMemory:
     """Data exposed by Core for the UIs to read in shared memory across process boundaries
+    Not used see FIXME
     """
+    from multiprocessing import shared_memory
+
     _sharedmem = None
     name = f'{PACKAGE_NAME}.core'
 
     def __init__(self, create: bool):
         size = 1024 #1kB should be enough to store a few strings and an int
         # try:
-        #     self._sharedmem = shared_memory.SharedMemory(name=self.name, create=True, size=size)
-        #     self._created = True
-        # except FileExistsError: #already exists, attach to it
-        #     self._sharedmem = shared_memory.SharedMemory(name=self.name, create=False, size=size)
         self._sharedmem = shared_memory.SharedMemory(name=self.name, create=create, size=size)
         self.data = DATA()
 
@@ -130,12 +184,13 @@ class SharedMemory:
 
     def close(self, delete: bool):
         assert self._sharedmem != None
-        # each process spawns a resource tracker that deletes the block when the process
+        # FIXME: each process spawns a resource tracker that deletes the block when the process
         # closes  the handle, warning it had to do it, and the 2nd process with its own tracker
         # throws warnings that it needs to be deleted and then that it can't because
-        # it was already deleted.
-        # can't  even suppress warning maybe use a temp file again
+        # it was already deleted
         # https://bugs.python.org/issue38119
+        # can't  even suppress warnings so using a temp file again
+        # Doesn't work either:
         # from multiprocessing import resource_tracker
         # resource_tracker._resource_tracker._stop()
         import warnings
@@ -147,7 +202,7 @@ class SharedMemory:
                     __logger__.warn(f'Failed to close shared memory block: {e}')
             if delete:
                 try:
-                    self._sharedmem.close()
+                    #self._sharedmem.close()
                     self._sharedmem.unlink()
                 except Exception as e:
                     if e.args[0] == 2:

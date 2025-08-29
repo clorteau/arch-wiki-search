@@ -25,7 +25,7 @@ from concurrent.futures import ThreadPoolExecutor
 #     from arch_wiki_search.cachingproxy import LazyProxy
 #     from arch_wiki_search.wikis import Wikis
 from __init__ import __logger__, __icon__, Colors
-from exchange import StopFlag, SharedMemory
+import exchange
 from cachingproxy import LazyProxy
 from wikis import Wikis
 
@@ -44,7 +44,7 @@ class Core:
     noicon = False
     _notifIconStarted = False 
     _stop = False #will shutdown if set to True
-    sharedmem = None #will be exposed to UIs
+    coreinfofile = None #will be exposed to UIs
     
     async def start(self):
         try:
@@ -62,16 +62,12 @@ class Core:
 
         await self.proxy.printcachesize()
 
-        #write info in shared memory for UIs to read
-        self.sharedmem.data.port = self.proxy.port
-        self.sharedmem.data.wikiname = self.wikiname
-        self.sharedmem.data.wikiurl = self.base_url
-        self.sharedmem.data.wikisearchstring = self.search_parm
-        try:
-            self.sharedmem.write_data()
-        except Exception as e:
-            msg = f'Failed writing to shared memory: {e}'
-            __logger__.error(msg)
+        #write info in temp file for UIs to read
+        self.coreinfofile = exchange.CoreDescriptorFile(self.proxy.port)
+        self.coreinfofile.data.wikiname = self.wikiname
+        self.coreinfofile.data.wikiurl = self.base_url
+        self.coreinfofile.data.wikisearchstring = self.search_parm
+        self.coreinfofile.write_data()
 
     async def search(self, search_term = ''):
         url_path = ''
@@ -157,7 +153,7 @@ class Core:
         await self.proxy.stop()
         await self.proxy.printcachesize()
         self.stopFlag.delete()
-        self.sharedmem.close(delete=True)
+        self.coreinfofile.delete()
 
     async def wait(self, secs=1):
         """Sleep and check for stop flag every X seconds
@@ -176,7 +172,7 @@ class Core:
         """base_url (option -u) will override -wiki.url
         search_parm (option -s) will override -wiki.searchstring
         """
-        self.stopFlag = StopFlag() #will be written to True by the QT gui to stop the proxy
+        self.stopFlag = exchange.StopFlag() #will be written to True by the QT gui to stop the proxy
 
         assert knownwikis
         for w in knownwikis:
@@ -201,5 +197,4 @@ class Core:
         else: __logger__.setLevel(logging.INFO)
         
         self.proxy = LazyProxy(self.base_url, debug=debug, conv=self.conv)
-        self.sharedmem = SharedMemory(create=True)
 

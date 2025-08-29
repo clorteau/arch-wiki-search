@@ -5,7 +5,10 @@
 License: MIT
 """
 
+import os
+import re
 import sys
+import glob
 import webbrowser
 import traceback
 from PyQt6.QtCore import Qt, QPoint
@@ -18,7 +21,7 @@ from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWi
 # except ModuleNotFoundError:
 #     from arch_wiki_search.exchange import StopFlag
 #     from arch_wiki_search import PACKAGE_NAME, __version__, __icon__
-from exchange import StopFlag, SharedMemory
+from exchange import StopFlag, CoreDescriptorFile
 from __init__ import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
 
 class NotifIcon(QSystemTrayIcon):
@@ -32,14 +35,13 @@ class NotifIcon(QSystemTrayIcon):
     """
     debug = True #TODO pull debug value from calling thread
     stopFlag = None #write to False to stop the proxying process
-    sharedMemory = None #Core will expose info about what it's serving
+    coreinfofile = None #Core will expose info about what it's serving
     last_search = 'Getting involved'
 
     def __init__(self):     
         self.stopFlag = StopFlag()
-        self.sharedMemory = SharedMemory(create=False)
-        self.sharedMemory.read_data()
-
+        self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
+        self.coreinfofile.read_data()
 
         # generate icon from utf-8 character
         pixmap = QPixmap(64, 64) #TODO: see how portable that looks
@@ -52,9 +54,9 @@ class NotifIcon(QSystemTrayIcon):
         
         super().__init__(self.icon)
         self.setToolTip(f'{PACKAGE_NAME} {__version__}')
-        self.local_url = f'http://localhost:{self.sharedMemory.data.port}'
+        self.local_url = f'http://localhost:{self.coreinfofile.data.port}'
 
-        header_text = f'Wiki {self.sharedMemory.data.wikiname} on {self.local_url}'
+        header_text = f'Wiki {self.coreinfofile.data.wikiname} on {self.local_url}'
         self.menu = QMenu()
         self.header_action = QAction('header', text=header_text)
         self.header_action.triggered.connect(self._header_clicked)
@@ -66,6 +68,27 @@ class NotifIcon(QSystemTrayIcon):
         self.exit_action.triggered.connect(self.stop)
         self.menu.addAction(self.exit_action)
         self.setContextMenu(self.menu)
+
+    def _loadDescriptorFile(self):
+        """Find most recent core descriptor file and use it
+        #TODO: one icon per active core / allow spawning more by selecting from yaml entries
+        """
+        try:
+            tmppath = CoreDescriptorFile.get_path_pattern()
+            files = glob.glob(tmppath + '*')
+            files.sort(key=os.path.getmtime, reverse=True)
+            #read port number from file name ('/tmp/arch_wiki_search.core.1234')
+            regex = tmppath + r'([\d]+)$'
+            for file_path in files:
+                match = re.search(regex, file_path)
+                port = int(match.group(1))
+                __logger__.debug(f'iconqt found core on port {port}')
+                #TODO: try to open a socket to the port to confirm the core is still there
+                return CoreDescriptorFile(port) #TODO: find all cores not just the most recently active
+        except Exception as e:
+            msg = f'Failed to find core description files in {tmppath}* - can\'t spawn QT icon'
+            __logger__.error(msg)
+            return None
 
     def _openbrowser(self, url: str):
         try:
@@ -83,13 +106,13 @@ class NotifIcon(QSystemTrayIcon):
     def _search_enter(self):
         searchterm = self.search_box.text()
         self.last_search = searchterm
-        url = f'{self.local_url}/{self.sharedMemory.data.wikisearchstring}{searchterm}'
+        url = f'{self.local_url}/{self.coreinfofile.data.wikisearchstring}{searchterm}'
         self._openbrowser(url)
         self.search_widget.close()
 
     def _show_search_box(self):
         self.search_widget = QWidget()
-        self.search_widget.setWindowTitle(f'Search {self.sharedMemory.data.wikiname}')
+        self.search_widget.setWindowTitle(f'Search {self.coreinfofile.data.wikiname}')
         layout = QVBoxLayout()
         self.search_box = QLineEdit(self.last_search)
         self.search_box.selectAll()
@@ -101,7 +124,6 @@ class NotifIcon(QSystemTrayIcon):
         self.search_widget.show()
 
     def stop(self):
-        self.sharedMemory.close(delete=False)
         self.stopFlag.write(True) #tell proxying process to stop
         QApplication.quit()
         

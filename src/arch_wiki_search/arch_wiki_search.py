@@ -35,7 +35,7 @@ import argparse
 
 # if __name__ == '__main__':
 from __init__ import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
-from exchange import ZIP
+import exchange
 from core import Core
 from wikis import Wikis
 # else:
@@ -173,14 +173,14 @@ txt: convert to plain text
         if (args.merge):
             __logger__.critical('--export and --merge can\'t be used together')
             sys.exit(-6)
-        ZIP().export(core.proxy.cache_dir)
+        exchange.ZIP().export(core.proxy.cache_dir)
         sys.exit(0)
 
     if (args.merge):
         if args.export:
             __logger__.critical('--export and --merge can\'t be used together')
             sys.exit(-6)
-        ZIP().merge(core.proxy.cache_dir, args.merge)
+        exchange.ZIP().merge(core.proxy.cache_dir, args.merge)
         sys.exit(0)
 
     try:
