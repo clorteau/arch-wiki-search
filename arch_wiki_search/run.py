@@ -22,7 +22,7 @@ import asyncio
 import argparse
 
 from arch_wiki_search import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors, PACKAGE_NAME
-import arch_wiki_search.exchange
+from arch_wiki_search.exchange import ZIP
 from arch_wiki_search.core import Core
 from arch_wiki_search.wikis import Wikis
 
@@ -155,14 +155,14 @@ txt: convert to plain text
         if (args.merge):
             __logger__.critical('--export and --merge can\'t be used together')
             sys.exit(-6)
-        exchange.ZIP().export(core.proxy.cache_dir)
+        ZIP().export(core.proxy.cache_dir)
         sys.exit(0)
 
     if (args.merge):
         if args.export:
             __logger__.critical('--export and --merge can\'t be used together')
             sys.exit(-6)
-        exchange.ZIP().merge(core.proxy.cache_dir, args.merge)
+        ZIP().merge(core.proxy.cache_dir, args.merge)
         sys.exit(0)
 
     try:

@@ -7,11 +7,11 @@ In development -
 
 *💡The idea is to always have access to your important wikis, even when things are so FUBAR there's no graphical environment or internet, in an easy to read way, and also to reduce the load on the wiki hoster themselves since users would be using their own cache most of the time.*
 
-It launches the browser appropriate to your environment, caches what you access +1 level of links if needed on the fly while you have a network connection, and accesses the cache when you're offline or the cache needs a refresh. It can also simplify the pages on the fly and export and import caches for out-of-band sharing or inclusion in an install media. 
+It caches what you access +1 level of links if needed on the fly while you have a network connection, and accesses the cache when you're offline or the cache needs a refresh. It can also simplify the pages on the fly and export and import caches for out-of-band sharing or inclusion in an install media. 
 
 There's no option to cache a whole wiki at once, in order to, you know, *not* DDOS them. So what will be available offline will be what you already accessed online manually, or that you imported with --merge prior.
 
-For instance:
+For instance, start it with:
 
 `$ arch-wiki-search "installation guide"`
 
@@ -27,9 +27,35 @@ For instance:
 
 [TODO: screenshots/webms]
  
-See --help:
+From there, it will:
+- Spin its own little local web server that will send you the pages you request, while getting them either from:
+	+ Its own saved copy
+	+ The server
+- Therefore if you're offline and you already visited this when on-line, you will not see a difference 🤞
+- Save/refresh the cached copy
+- Search for the most appropriate available browser to load for your environment, such as 'elinks' if you're on SSH for instance, or the user's defined default browser if there's a desktop environment, and call it
+- If a graphical environment is available and PyQT is installed, spawn a 📚 notification area icon where you can access the wiki directly
+
+You can elso export and import whole caches for off-band sharing or inclusion in an install media for instance.
+
+More details in `--help`.
+
+This is all Python using common libraries and is a proper PyPI package itself, so it's compatible Linux (all distros), MacOS and Windows and available through all these through PyPI - again, despite the name. 
+
+### Installation ###
+
+#### Arch Linux and derivatives through AUR ####
+```bash
+$ yay -S arch-wiki-search
+```
+
+#### Anywhere through PyPI ####
+```bash
+$ pipx install arch-wiki-search
+```
 
 
+### Help ###
 ```bash
 $ usage: arch-wiki-search [-h]
                           [-w {archwiki,discovery,fedorawiki,freebsdwiki,gentoowiki,manjarowiki,pythonwiki,slackdocs,wikipedia}]
@@ -77,16 +103,4 @@ Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a 'wikis.yaml' file in '$(pwd)' and '{$HOME}/.config/arch-wiki-search'
 Github: 🌐https://github.com/clorteau/arch-wiki-search
 Request to add new wiki: 🌐https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md
-```
-
-### Installation ###
-
-#### Arch Linux and derivatives through AUR ####
-```bash
-$ yay -S arch-wiki-search
-```
-
-#### Anywhere through PyPI ####
-```bash
-$ pipx install arch-wiki-search
 ```

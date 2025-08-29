@@ -3,7 +3,7 @@
 """ arch-wiki-search (c) Clem Lorteau 2025
 License: MIT
 """
-print(f'__name__ from __init__ = {__name__}')
+
 __version__ = '20250829'
 __name__ = 'arch_wiki_search'
 PACKAGE_NAME = 'arch_wiki_search'
