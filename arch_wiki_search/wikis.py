@@ -33,7 +33,7 @@ class Wikis(set):
         return sorted(names)
 
     def gethelpstring(self):
-        s = f'Known wikis are loaded from {arch_wiki_search.Colors.yellow}{self.filename}{Colors.reset} files in these directories:\n'
+        s = f'Known wikis are loaded from {Colors.yellow}{self.filename}{Colors.reset} files in these directories:\n'
         for d in self.dirs:
             s += f'🡪 {Colors.yellow}{d}{Colors.reset}\n'
         s += f'You can edit these files to add your own. If you do, please share at 🌐{Colors.blue_underline}{__newwikirequesturl__}{Colors.reset}\n'
