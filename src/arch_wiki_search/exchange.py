@@ -100,13 +100,15 @@ class SharedMemory:
     _sharedmem = None
     name = f'{PACKAGE_NAME}.core'
 
-    def __init__(self):
+    def __init__(self, create: bool):
         size = 1024 #1kB should be enough to store a few strings and an int
         # TODO: test shared mem limits
-        try:
-            self._sharedmem = shared_memory.SharedMemory(name=self.name, create=True, size=size)
-        except FileExistsError: #already exists, attach to it
-            self._sharedmem = shared_memory.SharedMemory(name=self.name, create=False, size=size)
+        # try:
+        #     self._sharedmem = shared_memory.SharedMemory(name=self.name, create=True, size=size)
+        #     self._created = True
+        # except FileExistsError: #already exists, attach to it
+        #     self._sharedmem = shared_memory.SharedMemory(name=self.name, create=False, size=size)
+        self._sharedmem = shared_memory.SharedMemory(name=self.name, create=create, size=size)
         self.data = DATA()
 
     def _serialize(self, data) -> bytes:
@@ -124,11 +126,22 @@ class SharedMemory:
         self.data = self._deserialize(self._sharedmem.buf)
         return self.data
 
-    def delete(self):
-        if self._sharedmem:
+    def close(self, delete: bool):
+        #TODO: still getting warnings when i'm closing and deleting everything. Suppress it?
+        #https://stackoverflow.com/questions/62748654/python-3-8-shared-memory-resource-tracker-producing-unexpected-warnings-at-appli#63004750
+        print(delete)
+        assert self._sharedmem != None
+        try:
+            self._sharedmem.close()
+        except Exception as e:
+                __logger__.warn(f'Failed to close shared memory block: {e}')
+        if delete:
             try:
                 self._sharedmem.close()
                 self._sharedmem.unlink()
             except Exception as e:
-                __logger__.debug(f'Failed to deleted shared memory block: {e}')
+                if e.args[0] == 2:
+                    pass # err code 2 = not found so it was already deleted
+                else:
+                    __logger__.warn(f'Failed to delete shared memory block: {e}')
 

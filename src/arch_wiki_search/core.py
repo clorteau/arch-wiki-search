@@ -157,7 +157,7 @@ class Core:
         await self.proxy.stop()
         await self.proxy.printcachesize()
         self.stopFlag.delete()
-        self.sharedmem.delete()
+        self.sharedmem.close(delete=True)
 
     async def wait(self, secs=1):
         """Sleep and check for stop flag every X seconds
@@ -201,5 +201,5 @@ class Core:
         else: __logger__.setLevel(logging.INFO)
         
         self.proxy = LazyProxy(self.base_url, debug=debug, conv=self.conv)
-        self.sharedmem = SharedMemory()
+        self.sharedmem = SharedMemory(create=True)
 

@@ -60,13 +60,14 @@ async def _clear(core):
     """
     await core.proxy.printcachesize()
     __logger__.warning('This will clear your cache - are you sure? (type \'Yes\')')
-    a = input ('> ') #TODO: prompts in curses
+    a = input ('> ')
     if a != 'Yes': sys.exit(-7)
     await core.proxy.clear()
     await core.proxy.printcachesize()
 
 def main():
-    """Load pre-configured base_url/searchstring pairs from yaml file
+    """Load pre-configured base_url/searchstring pairs from yaml file, process arguments,
+    start core and notif icon and close them cleanly
     """
     knownwikis = None
     debug = False
@@ -189,5 +190,3 @@ txt: convert to plain text
 
 if __name__ == '__main__':
     main()
-
-#sys.exit(main())

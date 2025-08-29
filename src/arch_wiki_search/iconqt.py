@@ -36,7 +36,7 @@ class NotifIcon(QSystemTrayIcon):
 
     def __init__(self):     
         self.stopFlag = StopFlag()
-        self.sharedMemory = SharedMemory()
+        self.sharedMemory = SharedMemory(create=False)
         self.sharedMemory.read_data()
 
 
@@ -89,7 +89,7 @@ class NotifIcon(QSystemTrayIcon):
         self.search_widget = QWidget()
         self.search_widget.setWindowTitle(f'Search {self.sharedMemory.data.wikiname}')
         layout = QVBoxLayout()
-        self.search_box = QLineEdit('Installation guide')
+        self.search_box = QLineEdit('About')
         self.search_box.selectAll()
         self.search_box.returnPressed.connect(self._search_enter)
         layout.addWidget(self.search_box)
@@ -99,6 +99,7 @@ class NotifIcon(QSystemTrayIcon):
         self.search_widget.show()
 
     def stop(self):
+        self.sharedMemory.close(delete=False)
         self.stopFlag.write(True) #tell proxying process to stop
         QApplication.quit()
         
