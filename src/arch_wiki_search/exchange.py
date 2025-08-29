@@ -127,7 +127,8 @@ class SharedMemory:
         return self.data
 
     def close(self, delete: bool):
-        #TODO: still getting warnings when i'm closing and deleting everything. Suppress it?
+        #TODO: still getting warnings from ressource_tracker when i'm closing and deleting everything
+        #Suppress it?
         #https://stackoverflow.com/questions/62748654/python-3-8-shared-memory-resource-tracker-producing-unexpected-warnings-at-appli#63004750
         print(delete)
         assert self._sharedmem != None
