@@ -16,14 +16,8 @@ from aiohttp import web, DummyCookieJar, TraceConfig
 from concurrent.futures import ThreadPoolExecutor
 from aiohttp_client_cache import CachedSession, FileBackend
 
-# try:
-#     import converters
-#     from __init__ import __logger__, __version__, PACKAGE_NAME, __url__, __contact__, __icon__, Colors
-# except ModuleNotFoundError:
-#     from arch_wiki_search import converters, __logger__, __version__, __url__, __contact__, __icon__, Colors
-
-import converters
-from __init__ import __logger__, __version__, PACKAGE_NAME, __url__, __contact__, __icon__, Colors
+import arch_wiki_search.converters as converters
+from arch_wiki_search import __logger__, __version__, PACKAGE_NAME, __url__, __contact__, __icon__, Colors
 
 class LazyProxy:
     """Asynchronous caching http proxy that caches for a long time, manipulates responses,

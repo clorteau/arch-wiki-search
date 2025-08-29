@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """ arch-wiki-search (c) Clem Lorteau 2025
@@ -15,14 +14,8 @@ from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont, QCursor
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout
 
-# try:
-#     from exchange import StopFlag
-#     from __init__ import PACKAGE_NAME, __version__, __icon__
-# except ModuleNotFoundError:
-#     from arch_wiki_search.exchange import StopFlag
-#     from arch_wiki_search import PACKAGE_NAME, __version__, __icon__
-from exchange import StopFlag, CoreDescriptorFile
-from __init__ import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
+from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile
+from arch_wiki_search import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
 
 class NotifIcon(QSystemTrayIcon):
     """Portable notification area icon that opens a menu with #TODO: 1 entry per wiki, a

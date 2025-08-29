@@ -6,12 +6,9 @@ License: MIT
 
 import os
 import yaml
-# try:
-#     from __init__ import PACKAGE_NAME, __newwikirequesturl__, __logger__, Colors
-# except ModuleNotFoundError:
-#     from arch_wiki_search.arch_wiki_search import PACKAGE_NAME, __newwikirequesturl__, __logger__
-from __init__ import PACKAGE_NAME, __newwikirequesturl__, __logger__, Colors
-    
+
+from arch_wiki_search import PACKAGE_NAME, __newwikirequesturl__, __logger__, Colors
+
 class Wiki:
     name = ''
     url = ''
@@ -36,7 +33,7 @@ class Wikis(set):
         return sorted(names)
 
     def gethelpstring(self):
-        s = f'Known wikis are loaded from {Colors.yellow}{self.filename}{Colors.reset} files in these directories:\n'
+        s = f'Known wikis are loaded from {arch_wiki_search.Colors.yellow}{self.filename}{Colors.reset} files in these directories:\n'
         for d in self.dirs:
             s += f'🡪 {Colors.yellow}{d}{Colors.reset}\n'
         s += f'You can edit these files to add your own. If you do, please share at 🌐{Colors.blue_underline}{__newwikirequesturl__}{Colors.reset}\n'

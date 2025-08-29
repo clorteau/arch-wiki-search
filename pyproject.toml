@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "arch-wiki-search"
-version = "20250827"
+version = "20250829"
 #dynamic = ["version"]
 authors = [
   { name="Clem Lorteau", email="spam@lorteau.fr" },
@@ -50,7 +50,7 @@ Issues = "https://github.com/clorteau/arch-wiki-search/issues"
   tui = ["textual",]
 
 [project.scripts]
-arch-wiki-search = "arch_wiki_search.arch_wiki_search:main"
+arch-wiki-search = "arch_wiki_search.run:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/arch_wiki_search"]
+packages = ["arch_wiki_search"]

@@ -1,7 +1,7 @@
 # Maintainer: Clem Lorteau <spam at lorteau dot fr>
 pkgname=arch-wiki-search
 _origpkgname=arch_wiki_search
-pkgver=20250827
+pkgver=20250829
 pkgrel=1
 pkgdesc="Read and search Archwiki and other wikis, online or offline, on the desktop or the terminal"
 arch=("any")

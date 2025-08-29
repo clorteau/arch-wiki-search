@@ -8,13 +8,7 @@ import pickle
 import tempfile
 from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
-# try:
-#     from __init__ import __logger__, PACKAGE_NAME
-# except ModuleNotFoundError:
-#     from arch_wiki_search.arch_wiki_search import __logger__, PACKAGE_NAME
-# from run import __logger__, PACKAGE_NAME
-from __init__ import __logger__, PACKAGE_NAME
-import core
+from arch_wiki_search import PACKAGE_NAME, __logger__
 
 class ZIP:
     """Read and write whole caches as ZIP files
@@ -156,11 +150,11 @@ class SharedMemory:
     from multiprocessing import shared_memory
 
     _sharedmem = None
-    name = f'{PACKAGE_NAME}.core'
 
     def __init__(self, create: bool):
         size = 1024 #1kB should be enough to store a few strings and an int
         # try:
+        self.name = f'{PACKAGE_NAME}.core'
         self._sharedmem = shared_memory.SharedMemory(name=self.name, create=create, size=size)
         self.data = DATA()
 

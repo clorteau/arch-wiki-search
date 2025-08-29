@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """ arch-wiki-search (c) Clem Lorteau 2025
@@ -22,27 +21,10 @@ import sys
 import asyncio
 import argparse
 
-# try:
-#     from __init__ import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
-#     from exchange import ZIP
-#     from core import Core
-#     from wikis import Wikis
-# except ModuleNotFoundError:
-#     from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
-#     from arch_wiki_search.exchange import ZIP
-#     from arch_wiki_search.core import Core
-#     from arch_wiki_search.wikis import Wikis
-
-# if __name__ == '__main__':
-from __init__ import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
-import exchange
-from core import Core
-from wikis import Wikis
-# else:
-#     from arch_wiki_search import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
-#     from arch_wiki_search.exchange import ZIP
-#     from arch_wiki_search.core import Core
-#     from arch_wiki_search.wikis import Wikis
+from arch_wiki_search import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors, PACKAGE_NAME
+import arch_wiki_search.exchange
+from arch_wiki_search.core import Core
+from arch_wiki_search.wikis import Wikis
 
 async def _main(core, search):
     core.spawnIcon()
@@ -80,12 +62,12 @@ def main():
         sys.exit(-6)
     
     parser = argparse.ArgumentParser(
-        prog = sys.argv[0],
+        prog = PACKAGE_NAME,
         description = f'''Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal 
 
 Examples:
-    {Colors.yellow}🡪 {Colors.reset}{sys.argv[0]} \"installation guide\"{Colors.reset}
-    {Colors.yellow}🡪 {Colors.reset}{sys.argv[0]} --wiki=wikipedia --conv=txt \"MIT license\"{Colors.reset}''',
+    {Colors.yellow}🡪 {Colors.reset}{PACKAGE_NAME} \"installation guide\"{Colors.reset}
+    {Colors.yellow}🡪 {Colors.reset}{PACKAGE_NAME} --wiki=wikipedia --conv=txt \"MIT license\"{Colors.reset}''',
         epilog = f'''Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a \'{knownwikis.filename}\' file in \'{knownwikis.dirs[0]}\' and \'{knownwikis.dirs[1]}\'
 Github: 🌐{Colors.blue_underline}{__url__}{Colors.reset}

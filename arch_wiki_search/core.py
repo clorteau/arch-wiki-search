@@ -12,22 +12,13 @@ import traceback
 import webbrowser
 import urllib.parse
 import subprocess
-# from multiprocessing import Process, Manager
 from concurrent.futures import ThreadPoolExecutor
 
-# try:
-#     from __init__ import __logger__, __icon__, Colors
-#     from exchange import StopFlag, SharedMemory
-#     from cachingproxy import LazyProxy
-# except ModuleNotFoundError:
-#     from arch_wiki_search import __logger__, __icon__, Colors
-#     from arch_wiki_search.exchange import StopFlag, SharedMemory
-#     from arch_wiki_search.cachingproxy import LazyProxy
-#     from arch_wiki_search.wikis import Wikis
-from __init__ import __logger__, __icon__, Colors
-import exchange
-from cachingproxy import LazyProxy
-from wikis import Wikis
+
+from arch_wiki_search import exchange, __logger__, __icon__, Colors, PACKAGE_NAME
+from arch_wiki_search.cachingproxy import LazyProxy
+from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile
+from arch_wiki_search.wikis import Wikis
 
 class Core:
     """Manages the caching proxy in async context and launches the appropriate browser
@@ -90,8 +81,9 @@ class Core:
             __logger__.info('Spawning notification icon')
             # run the QT app loop in a subprocess
             try:
-                path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
-                process = subprocess.Popen(['python', path]) #TODO: pass --debug
+                # path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
+                #process = subprocess.Popen(['python', path]) #TODO: pass --debug
+                process = subprocess.Popen(['python', '-m', f'{PACKAGE_NAME}.iconqt'])
                 self._notifIconStarted = True
             except Exception as e:
                 msg = f'Failed to start notification icon: {e}'
