@@ -6,10 +6,11 @@ License: MIT
 
 import os
 import yaml
-try:
-    from __init__ import __name__, __newwikirequesturl__, __logger__, Colors
-except ModuleNotFoundError:
-    from arch_wiki_search.arch_wiki_search import __name__, __newwikirequesturl__, __logger__
+# try:
+#     from __init__ import PACKAGE_NAME, __newwikirequesturl__, __logger__, Colors
+# except ModuleNotFoundError:
+#     from arch_wiki_search.arch_wiki_search import PACKAGE_NAME, __newwikirequesturl__, __logger__
+from __init__ import PACKAGE_NAME, __newwikirequesturl__, __logger__
     
 class Wiki:
     name = ''
@@ -62,9 +63,9 @@ class Wikis(set):
 
         # check in standard OS user config locations
         if os.name == 'posix': 
-            configdir = os.path.join(os.path.expanduser('~'), '.config', __name__)
+            configdir = os.path.join(os.path.expanduser('~'), '.config', PACKAGE_NAME)
         elif os.name == 'nt': 
-            configdir = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', __name__)
+            configdir = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', PACKAGE_NAME)
         self.dirs.append(configdir)
 
         for d in self.dirs:

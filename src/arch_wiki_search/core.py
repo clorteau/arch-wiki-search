@@ -15,15 +15,19 @@ import subprocess
 # from multiprocessing import Process, Manager
 from concurrent.futures import ThreadPoolExecutor
 
-try:
-    from __init__ import __logger__, __icon__, Colors
-    from exchange import StopFlag
-    from cachingproxy import LazyProxy
-except ModuleNotFoundError:
-    from arch_wiki_search import __logger__, __icon__, Colors
-    from arch_wiki_search.exchange import StopFlag
-    from arch_wiki_search.cachingproxy import LazyProxy
-    from arch_wiki_search.wikis import Wikis
+# try:
+#     from __init__ import __logger__, __icon__, Colors
+#     from exchange import StopFlag, SharedMemory
+#     from cachingproxy import LazyProxy
+# except ModuleNotFoundError:
+#     from arch_wiki_search import __logger__, __icon__, Colors
+#     from arch_wiki_search.exchange import StopFlag, SharedMemory
+#     from arch_wiki_search.cachingproxy import LazyProxy
+#     from arch_wiki_search.wikis import Wikis
+from __init__ import __logger__, __icon__, Colors
+from exchange import StopFlag, SharedMemory
+from cachingproxy import LazyProxy
+from wikis import Wikis
 
 class Core:
     """Manages the caching proxy in async context and launches the appropriate browser
@@ -32,6 +36,7 @@ class Core:
     search_parm = ''
     current_url = ''
     search_term = ''
+    wikiname = ''
     cachingproxy = None
     offline = False
     refresh = False
@@ -39,6 +44,7 @@ class Core:
     noicon = False
     _notifIconStarted = False 
     _stop = False #will shutdown if set to True
+    sharedmem = None #will be exposed to UIs
     
     async def start(self):
         try:
@@ -53,7 +59,19 @@ class Core:
             msg += f' or {__icon__}{Colors.yellow}🡪 Exit{Colors.green}'
         msg += ' to stop'
         __logger__.info(msg)
+
         await self.proxy.printcachesize()
+
+        #write info in shared memory for UIs to read
+        self.sharedmem.data.port = self.proxy.port
+        self.sharedmem.data.wikiname = self.wikiname
+        self.sharedmem.data.wikiurl = self.base_url
+        self.sharedmem.data.wikisearchstring = self.search_parm
+        try:
+            self.sharedmem.write_data()
+        except Exception as e:
+            msg = f'Failed writing to shared memory: {e}'
+            __logger__.error(msg)
 
     async def search(self, search_term = ''):
         url_path = ''
@@ -77,7 +95,7 @@ class Core:
             # run the QT app loop in a subprocess
             try:
                 path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
-                process = subprocess.Popen(['python', path])
+                process = subprocess.Popen(['python', path]) #TODO: pass --debug
                 self._notifIconStarted = True
             except Exception as e:
                 msg = f'Failed to start notification icon: {e}'
@@ -139,6 +157,7 @@ class Core:
         await self.proxy.stop()
         await self.proxy.printcachesize()
         self.stopFlag.delete()
+        self.sharedmem.delete()
 
     async def wait(self, secs=1):
         """Sleep and check for stop flag every X seconds
@@ -176,9 +195,11 @@ class Core:
         self.refresh = refresh
         self.debug = debug
         self.noicon = noicon
+        self.wikiname = wiki
 
         if self.debug: __logger__.setLevel(logging.DEBUG)
         else: __logger__.setLevel(logging.INFO)
         
         self.proxy = LazyProxy(self.base_url, debug=debug, conv=self.conv)
+        self.sharedmem = SharedMemory()
 

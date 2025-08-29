@@ -6,26 +6,40 @@ License: MIT
 """
 
 import sys
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont
+import webbrowser
+import traceback
+from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont, QCursor
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout
 
-try:
-    from exchange import StopFlag
-    from __init__ import __name__, __version__, __icon__
-except ModuleNotFoundError:
-    from arch_wiki_search.exchange import StopFlag
-    from arch_wiki_search import __name__, __version__, __icon__
+# try:
+#     from exchange import StopFlag
+#     from __init__ import PACKAGE_NAME, __version__, __icon__
+# except ModuleNotFoundError:
+#     from arch_wiki_search.exchange import StopFlag
+#     from arch_wiki_search import PACKAGE_NAME, __version__, __icon__
+from exchange import StopFlag, SharedMemory
+from __init__ import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
 
 class NotifIcon(QSystemTrayIcon):
     """Portable notification area icon that opens a menu with #TODO: 1 entry per wiki, a
     search function
     PyQT6 so runs on Windows (Intel and ARM), macOS (Intel and Apple Silicon) and Linux (Intel and ARM)
-    #TODO: detect and quit when the last process exits
+    #TODO: detect and quit when the last Core exits
+    #TODO: update icon to current /favicon.ico if it exists
+    #TODO: show cache size
+    #TODO: add --export, --merge
     """
+    debug = True #TODO pull debug value from calling thread
     stopFlag = None #write to False to stop the proxying process
+    sharedMemory = None #Core will expose info about what it's serving
 
-    def __init__(self):       
+    def __init__(self):     
+        self.stopFlag = StopFlag()
+        self.sharedMemory = SharedMemory()
+        self.sharedMemory.read_data()
+
+
         # generate icon from utf-8 character
         pixmap = QPixmap(64, 64) #TODO: see how portable that looks
         pixmap.fill(Qt.GlobalColor.transparent)
@@ -36,25 +50,52 @@ class NotifIcon(QSystemTrayIcon):
         self.icon = QIcon(pixmap)
         
         super().__init__(self.icon)
-        self.setToolTip(f'{__name__} {__version__}')
+        self.setToolTip(f'{PACKAGE_NAME} {__version__}')
+        self.local_url = f'http://localhost:{self.sharedMemory.data.port}'
+
+        header_text = f'Wiki {self.sharedMemory.data.wikiname} on {self.local_url}'
         self.menu = QMenu()
+        self.header_action = QAction('header', text=header_text)
+        self.header_action.triggered.connect(self._header_clicked)
+        self.menu.addAction(self.header_action)
         self.search_action = QAction('Search')
-        self.search_action.triggered.connect(self.show_search_box)
+        self.search_action.triggered.connect(self._show_search_box)
         self.menu.addAction(self.search_action)
         self.exit_action = QAction('Exit')
         self.exit_action.triggered.connect(self.stop)
         self.menu.addAction(self.exit_action)
         self.setContextMenu(self.menu)
 
-        self.stopFlag = StopFlag()
+    def _openbrowser(self, url: str):
+        try:
+            webbrowser.open(url)
+        except Exception as e:
+            __logger__.error(f'Failed to start browser: {e}')
+            if self.debug:
+                print(traceback.format_exc())
+        else:
+            __logger__.debug('Calling browser')
 
-    def show_search_box(self):
+    def _header_clicked(self):
+        self._openbrowser(self.local_url)
+
+    def _search_enter(self):
+        searchterm = self.search_box.text()
+        url = f'{self.local_url}/{self.sharedMemory.data.wikisearchstring}{searchterm}'
+        self._openbrowser(url)
+        self.search_widget.close()
+
+    def _show_search_box(self):
         self.search_widget = QWidget()
-        self.search_widget.setWindowTitle('#TODO:search')
+        self.search_widget.setWindowTitle(f'Search {self.sharedMemory.data.wikiname}')
         layout = QVBoxLayout()
-        self.search_box = QLineEdit()
+        self.search_box = QLineEdit('Installation guide')
+        self.search_box.selectAll()
+        self.search_box.returnPressed.connect(self._search_enter)
         layout.addWidget(self.search_box)
         self.search_widget.setLayout(layout)
+        self.search_widget.setGeometry(QCursor.pos().x(), QCursor.pos().y(), #mouse cursor position
+                                        200, 30) #TODO: adapt size to font/resolution
         self.search_widget.show()
 
     def stop(self):
@@ -65,9 +106,9 @@ def main():
     qt6app = QApplication(sys.argv)
     notificon = NotifIcon()
     notificon.show()
+    #TODO: loop and quit if the stop flag file was deleted, meaning the core quit on us
     qt6app.exec()
 
 if __name__ == '__main__':
     main()
 
-main()

@@ -9,6 +9,7 @@ License: MIT
 #TODO: conv = custom css - user supplied css
 #TODO: arg to change number of days before cache expiry
 #TODO: prompt while serving to search other terms - getting there
+#TODO: read command line args from conf file
 #TODO: option to select language
 #TODO: test mode
 #TODO: refresh mode
@@ -21,21 +22,27 @@ import sys
 import asyncio
 import argparse
 
-try:
-    from __init__ import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
-    from exchange import ZIP
-    from core import Core
-    from wikis import Wikis
-except ModuleNotFoundError:
-    from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
-    from arch_wiki_search.exchange import ZIP
-    from arch_wiki_search.core import Core
-    from arch_wiki_search.wikis import Wikis
+# try:
+#     from __init__ import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
+#     from exchange import ZIP
+#     from core import Core
+#     from wikis import Wikis
+# except ModuleNotFoundError:
+#     from arch_wiki_search import __name__, __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
+#     from arch_wiki_search.exchange import ZIP
+#     from arch_wiki_search.core import Core
+#     from arch_wiki_search.wikis import Wikis
 
-format_blue_underline = '\033[4;34m'
-format_yellow = '\x1b[33;20m'
-format_bold = '\033[1m'
-format_reset = '\033[0m'
+# if __name__ == '__main__':
+from __init__ import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
+from exchange import ZIP
+from core import Core
+from wikis import Wikis
+# else:
+#     from arch_wiki_search import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors
+#     from arch_wiki_search.exchange import ZIP
+#     from arch_wiki_search.core import Core
+#     from arch_wiki_search.wikis import Wikis
 
 async def _main(core, search):
     core.spawnIcon()
@@ -45,6 +52,7 @@ async def _main(core, search):
         await core.wait()
     except asyncio.CancelledError:
         print('')
+    
     await core.stop()
 
 async def _clear(core):
@@ -75,12 +83,12 @@ def main():
         description = f'''Read and search Archwiki and other wikis, online or offline, in HTML, markdown or text, on the desktop or the terminal 
 
 Examples:
-    {format_yellow}🡪 {format_reset}{sys.argv[0]} \"installation guide\"{format_reset}
-    {format_yellow}🡪 {format_reset}{sys.argv[0]} --wiki=wikipedia --conv=txt \"MIT license\"{format_reset}''',
+    {Colors.yellow}🡪 {Colors.reset}{sys.argv[0]} \"installation guide\"{Colors.reset}
+    {Colors.yellow}🡪 {Colors.reset}{sys.argv[0]} --wiki=wikipedia --conv=txt \"MIT license\"{Colors.reset}''',
         epilog = f'''Options -u and -s overwrite the corresponding url or searchstring provided by -w
 Known wiki names and their url/searchstring pairs are read from a \'{knownwikis.filename}\' file in \'{knownwikis.dirs[0]}\' and \'{knownwikis.dirs[1]}\'
-Github: 🌐{format_blue_underline}{__url__}{format_reset}
-Request to add new wiki: 🌐{format_blue_underline}{__newwikirequesturl__}{format_reset}''',
+Github: 🌐{Colors.blue_underline}{__url__}{Colors.reset}
+Request to add new wiki: 🌐{Colors.blue_underline}{__newwikirequesturl__}{Colors.reset}''',
         formatter_class = argparse.RawTextHelpFormatter,
     )
     parser.add_argument('-w', '--wiki', default='archwiki',
@@ -170,7 +178,7 @@ txt: convert to plain text
     if (args.merge):
         if args.export:
             __logger__.critical('--export and --merge can\'t be used together')
-            zip.exit(-6)
+            sys.exit(-6)
         ZIP().merge(core.proxy.cache_dir, args.merge)
         sys.exit(0)
 
@@ -182,4 +190,4 @@ txt: convert to plain text
 if __name__ == '__main__':
     main()
 
-sys.exit(main())
+#sys.exit(main())

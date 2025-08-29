@@ -15,7 +15,7 @@ from textual.app import App, ComposeResult, SystemCommand
 from textual.widgets import Button, Label, Placeholder, Footer
 from textual.containers import VerticalScroll, Horizontal
 
-from __init__ import __icon__, __name__, __version__, __logger__
+from arch_wiki_search import __icon__, PACKAGE_NAME, __version__, __logger__
 
 class TXTIcon(App):
     """Will display a start bar and start button like icon in console mode to search and stop the proxy
@@ -38,7 +38,7 @@ class TXTIcon(App):
     '''
 
     def on_mount(self) -> None:
-        self.title = f'{__name__.replace('_', '-')} {__version__}'
+        self.title = f'{PACKAGE_NAME.replace('_', '-')} {__version__}'
 
     def action_exit(self) -> None:
         #TODO: write stop flag

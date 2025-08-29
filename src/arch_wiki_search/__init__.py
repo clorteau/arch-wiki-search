@@ -6,6 +6,7 @@ License: MIT
 
 __version__ = '20250827'
 __name__ = 'arch_wiki_search'
+PACKAGE_NAME = 'arch_wiki_search'
 __author__ = 'Clem Lorteau'
 __license__ = 'MIT'
 
@@ -47,7 +48,7 @@ class AIOHTTPCustomFormatter(CustomFormatter):
     fields = '%a %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
 
 
-__logger__ = logging.getLogger(__name__)
+__logger__ = logging.getLogger(PACKAGE_NAME)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(CustomFormatter())
