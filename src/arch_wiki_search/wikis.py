@@ -10,7 +10,7 @@ import yaml
 #     from __init__ import PACKAGE_NAME, __newwikirequesturl__, __logger__, Colors
 # except ModuleNotFoundError:
 #     from arch_wiki_search.arch_wiki_search import PACKAGE_NAME, __newwikirequesturl__, __logger__
-from __init__ import PACKAGE_NAME, __newwikirequesturl__, __logger__
+from __init__ import PACKAGE_NAME, __newwikirequesturl__, __logger__, Colors
     
 class Wiki:
     name = ''

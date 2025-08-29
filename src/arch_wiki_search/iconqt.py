@@ -33,6 +33,7 @@ class NotifIcon(QSystemTrayIcon):
     debug = True #TODO pull debug value from calling thread
     stopFlag = None #write to False to stop the proxying process
     sharedMemory = None #Core will expose info about what it's serving
+    last_search = 'Getting involved'
 
     def __init__(self):     
         self.stopFlag = StopFlag()
@@ -81,6 +82,7 @@ class NotifIcon(QSystemTrayIcon):
 
     def _search_enter(self):
         searchterm = self.search_box.text()
+        self.last_search = searchterm
         url = f'{self.local_url}/{self.sharedMemory.data.wikisearchstring}{searchterm}'
         self._openbrowser(url)
         self.search_widget.close()
@@ -89,7 +91,7 @@ class NotifIcon(QSystemTrayIcon):
         self.search_widget = QWidget()
         self.search_widget.setWindowTitle(f'Search {self.sharedMemory.data.wikiname}')
         layout = QVBoxLayout()
-        self.search_box = QLineEdit('About')
+        self.search_box = QLineEdit(self.last_search)
         self.search_box.selectAll()
         self.search_box.returnPressed.connect(self._search_enter)
         layout.addWidget(self.search_box)

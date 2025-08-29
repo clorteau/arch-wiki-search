@@ -102,7 +102,6 @@ class SharedMemory:
 
     def __init__(self, create: bool):
         size = 1024 #1kB should be enough to store a few strings and an int
-        # TODO: test shared mem limits
         # try:
         #     self._sharedmem = shared_memory.SharedMemory(name=self.name, create=True, size=size)
         #     self._created = True
@@ -112,10 +111,13 @@ class SharedMemory:
         self.data = DATA()
 
     def _serialize(self, data) -> bytes:
-        return pickle.dumps(data)
+        b = pickle.dumps(data)
+        __logger__.debug(f'Wrote {len(b)} bytes in shared memory')
+        return b
 
     def _deserialize(self, b: bytes):
         data = pickle.loads(b)
+        __logger__.debug(f'Read {len(b)} bytes from shared memory')
         return data
 
     def write_data(self) -> None:
@@ -127,22 +129,29 @@ class SharedMemory:
         return self.data
 
     def close(self, delete: bool):
-        #TODO: still getting warnings from ressource_tracker when i'm closing and deleting everything
-        #Suppress it?
-        #https://stackoverflow.com/questions/62748654/python-3-8-shared-memory-resource-tracker-producing-unexpected-warnings-at-appli#63004750
-        print(delete)
         assert self._sharedmem != None
-        try:
-            self._sharedmem.close()
-        except Exception as e:
-                __logger__.warn(f'Failed to close shared memory block: {e}')
-        if delete:
+        # each process spawns a resource tracker that deletes the block when the process
+        # closes  the handle, warning it had to do it, and the 2nd process with its own tracker
+        # throws warnings that it needs to be deleted and then that it can't because
+        # it was already deleted.
+        # can't  even suppress warning maybe use a temp file again
+        # https://bugs.python.org/issue38119
+        # from multiprocessing import resource_tracker
+        # resource_tracker._resource_tracker._stop()
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore')
             try:
                 self._sharedmem.close()
-                self._sharedmem.unlink()
             except Exception as e:
-                if e.args[0] == 2:
-                    pass # err code 2 = not found so it was already deleted
-                else:
-                    __logger__.warn(f'Failed to delete shared memory block: {e}')
+                    __logger__.warn(f'Failed to close shared memory block: {e}')
+            if delete:
+                try:
+                    self._sharedmem.close()
+                    self._sharedmem.unlink()
+                except Exception as e:
+                    if e.args[0] == 2:
+                        pass # err code 2 = not found so it was already deleted
+                    else:
+                        __logger__.warn(f'Failed to delete shared memory block: {e}')
 
