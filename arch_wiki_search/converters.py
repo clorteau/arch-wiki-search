@@ -13,10 +13,7 @@ from aiohttp_client_cache import CachedResponse
 from markdownify import markdownify, BACKSLASH
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 
-try:
-    from __init__ import __logger__
-except ModuleNotFoundError:
-    from arch_wiki_search import __logger__
+from arch_wiki_search import __logger__
     
 class RawConverter:
     """Manipulates a aiohttp.ClientResponse to convert contents

@@ -12,18 +12,13 @@ import traceback
 import webbrowser
 import urllib.parse
 import subprocess
-# from multiprocessing import Process, Manager
 from concurrent.futures import ThreadPoolExecutor
 
-try:
-    from __init__ import __logger__, __icon__, Colors
-    from exchange import StopFlag
-    from cachingproxy import LazyProxy
-except ModuleNotFoundError:
-    from arch_wiki_search import __logger__, __icon__, Colors
-    from arch_wiki_search.exchange import StopFlag
-    from arch_wiki_search.cachingproxy import LazyProxy
-    from arch_wiki_search.wikis import Wikis
+
+from arch_wiki_search import exchange, __logger__, __icon__, Colors, PACKAGE_NAME
+from arch_wiki_search.cachingproxy import LazyProxy
+from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile
+from arch_wiki_search.wikis import Wikis
 
 class Core:
     """Manages the caching proxy in async context and launches the appropriate browser
@@ -32,6 +27,7 @@ class Core:
     search_parm = ''
     current_url = ''
     search_term = ''
+    wikiname = ''
     cachingproxy = None
     offline = False
     refresh = False
@@ -39,6 +35,7 @@ class Core:
     noicon = False
     _notifIconStarted = False 
     _stop = False #will shutdown if set to True
+    coreinfofile = None #will be exposed to UIs
     
     async def start(self):
         try:
@@ -53,7 +50,15 @@ class Core:
             msg += f' or {__icon__}{Colors.yellow}🡪 Exit{Colors.green}'
         msg += ' to stop'
         __logger__.info(msg)
+
         await self.proxy.printcachesize()
+
+        #write info in temp file for UIs to read
+        self.coreinfofile = exchange.CoreDescriptorFile(self.proxy.port)
+        self.coreinfofile.data.wikiname = self.wikiname
+        self.coreinfofile.data.wikiurl = self.base_url
+        self.coreinfofile.data.wikisearchstring = self.search_parm
+        self.coreinfofile.write_data()
 
     async def search(self, search_term = ''):
         url_path = ''
@@ -76,8 +81,9 @@ class Core:
             __logger__.info('Spawning notification icon')
             # run the QT app loop in a subprocess
             try:
-                path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
-                process = subprocess.Popen(['python', path])
+                # path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
+                #process = subprocess.Popen(['python', path]) #TODO: pass --debug
+                process = subprocess.Popen(['python', '-m', f'{PACKAGE_NAME}.iconqt'])
                 self._notifIconStarted = True
             except Exception as e:
                 msg = f'Failed to start notification icon: {e}'
@@ -139,6 +145,7 @@ class Core:
         await self.proxy.stop()
         await self.proxy.printcachesize()
         self.stopFlag.delete()
+        self.coreinfofile.delete()
 
     async def wait(self, secs=1):
         """Sleep and check for stop flag every X seconds
@@ -157,7 +164,7 @@ class Core:
         """base_url (option -u) will override -wiki.url
         search_parm (option -s) will override -wiki.searchstring
         """
-        self.stopFlag = StopFlag() #will be written to True by the QT gui to stop the proxy
+        self.stopFlag = exchange.StopFlag() #will be written to True by the QT gui to stop the proxy
 
         assert knownwikis
         for w in knownwikis:
@@ -176,6 +183,7 @@ class Core:
         self.refresh = refresh
         self.debug = debug
         self.noicon = noicon
+        self.wikiname = wiki
 
         if self.debug: __logger__.setLevel(logging.DEBUG)
         else: __logger__.setLevel(logging.INFO)
