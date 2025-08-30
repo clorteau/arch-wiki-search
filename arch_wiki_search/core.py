@@ -73,6 +73,7 @@ class Core:
         if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
             self.spawnIconGUI()
         elif not self.noicon: #No GUI, no --noicon
+            return #not working right
             self.spawnIconTUI()
 
     def spawnIconGUI(self):
@@ -92,7 +93,7 @@ class Core:
                 msg = f'Failed to start notification icon: {e}'
                 __logger__.error(msg)
 
-    def spawIconTUI(self):
+    def spawnIconTUI(self):
         return #not working right see FIXME
         try:
             from textual.app import App
