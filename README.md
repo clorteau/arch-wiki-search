@@ -44,12 +44,12 @@ This is all Python using common libraries and is a proper PyPI package itself, s
 
 ### Installation ###
 
-#### Arch Linux and derivatives through AUR ####
+#### Arch Linux and derivatives through AUR - with [yay](https://github.com/Jguer/yay): ####
 ```bash
 $ yay -S arch-wiki-search
 ```
 
-#### Anywhere through PyPI ####
+#### Anywhere through PyPI - with [pipx](https://pipx.pypa.io/latest/installation/): ####
 ```bash
 $ pipx install arch-wiki-search
 ```
