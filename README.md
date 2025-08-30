@@ -49,7 +49,7 @@ This is all Python using common libraries and is a proper PyPI package itself, s
 $ yay -S arch-wiki-search
 ```
 
-#### Linux, Windows MacOS through PyPI - with [pipx](https://pipx.pypa.io/latest/installation/): ####
+#### Linux, Windows, MacOS through PyPI - with [pipx](https://pipx.pypa.io/latest/installation/): ####
 ```bash
 $ pipx install arch-wiki-search
 ```
