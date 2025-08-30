@@ -40,7 +40,7 @@ You can elso export and import whole caches for off-band sharing or inclusion in
 
 More details in `--help`.
 
-This is all Python using common libraries and is a proper PyPI package itself, so it's compatible Linux (all distros), MacOS and Windows and available through all these through PyPI - again, despite the name. 
+This is all Python using common libraries and is a proper PyPI package itself, so it's compatible Linux (all distros), MacOS and Windows and available through all these through PyPI - again, despite the name. From there standard package helpers plug in easily. At the moment the only such package available is an Arch package through AUR. 
 
 ### Installation ###
 
