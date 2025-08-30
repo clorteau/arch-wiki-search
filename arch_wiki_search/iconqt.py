@@ -36,7 +36,7 @@ class NotifIcon(QSystemTrayIcon):
         # self.coreinfofile = MemoryCoreDescriptorFile()
         self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
         if self.coreinfofile == None:
-            __logger__.warn('Failed to read core info file: {e}')
+            __logger__.warn('Found no data in core info file')
         else:
             self.coreinfofile.read_data()
 
@@ -79,6 +79,8 @@ class NotifIcon(QSystemTrayIcon):
         """Runs every second in the main QT thread and refreshes things
         """
         try:
+            if self.coreinfofile == None:
+                self.coreinfofile = self._loadDescriptorFile()
             data = self.coreinfofile.read_data()
             self.local_url = f'http://localhost:{data.port}'
             if self.coreinfofile.data != None:
