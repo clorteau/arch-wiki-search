@@ -33,9 +33,12 @@ class NotifIcon(QSystemTrayIcon):
 
     def __init__(self):     
         self.stopFlag = StopFlag()
-        self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
         # self.coreinfofile = MemoryCoreDescriptorFile()
-        self.coreinfofile.read_data()
+        self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
+        if self.coreinfofile == None:
+            __logger__.warn('Failed to read core info file: {e}')
+        else:
+            self.coreinfofile.read_data()
 
         # generate icon from utf-8 character
         pixmap = QPixmap(64, 64) #TODO: see how portable that looks

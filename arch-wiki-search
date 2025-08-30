@@ -1,1 +1,1 @@
-python3 -m arch_wiki_search.run $@
+python -m arch_wiki_search.run $@
