@@ -21,6 +21,12 @@ import sys
 import asyncio
 import argparse
 
+try:
+    import arch_wiki_search
+except ModuleNotFoundError:
+    print('I\'m part of a package, I need to be loaded as such then run as a script: \'python -m arch_wiki_search.run\'')
+    sys.exit(-1)
+
 from arch_wiki_search import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors, PACKAGE_NAME
 from arch_wiki_search.exchange import ZIP
 from arch_wiki_search.core import Core

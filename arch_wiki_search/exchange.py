@@ -67,8 +67,12 @@ class StopFlag:
             try:
                 os.remove(self.filePath)
             except Exception as e:
-                msg = f'Could not delete temp file {self.filePath}: {e}' #might block all future starts if not delted
-                __logger__.error(msg)
+                if e.args[0] == 2:
+                    # err code 2 = not found so it was already deleted - probably by the core when quitting
+                    __logger__.debug('Found no stop flag to delete when quitting')
+                else:
+                    msg = f'Could not delete temp file {self.filePath}: {e}' #might block all future starts if not delted
+                    __logger__.error(msg)
 
     def __init__(self):
         self.filePath = os.path.join(tempfile.gettempdir(), f'{PACKAGE_NAME}.stopflag')

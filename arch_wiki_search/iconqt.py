@@ -117,16 +117,23 @@ class NotifIcon(QSystemTrayIcon):
         self.search_widget.show()
 
     def stop(self):
-        self.stopFlag.write(True) #tell proxying process to stop
+        try:
+            self.stopFlag.write(True) #tell proxying process to stop
+        except Exception as e:
+            msg = f'Failed to write stop flag from iconqt: {e}'
+            __logger__.error(msg)
         QApplication.quit()
         
 def main():
     qt6app = QApplication(sys.argv)
     notificon = NotifIcon()
     notificon.show()
-    #TODO: loop and quit if the stop flag file was deleted, meaning the core quit on us
     qt6app.exec()
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt: #calling thread (core) was interrupted before main() completed
+        self.stop()
+
 
