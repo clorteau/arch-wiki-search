@@ -70,11 +70,14 @@ class Core:
         await self._go(url_path)
 
     def spawnIcon(self):
-        if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
-            self.spawnIconGUI()
-        elif not self.noicon: #No GUI, no --noicon
-            return #not working right
-            self.spawnIconTUI()
+        if os.name == 'posix': 
+            if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
+                self.spawnIconGUI()
+            elif not self.noicon: #No GUI, no --noicon
+                return #not working right
+                self.spawnIconTUI()
+        elif (os.name == 'nt') and not self.noicon:  #Windows (doesn't declare DISPLAY env var), no --noicon
+                self.spawnIconGUI()
 
     def spawnIconGUI(self):
         try:
