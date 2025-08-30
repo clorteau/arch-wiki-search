@@ -7,20 +7,20 @@ License: MIT
 
 import sys
 import asyncio
-from textual import on
-from textual.binding import Binding
-from textual.screen import Screen
-from textual.command import CommandPalette
-from textual.app import App, ComposeResult, SystemCommand
-from textual.widgets import Button, Label, Placeholder, Footer
-from textual.containers import VerticalScroll, Horizontal
 
 from arch_wiki_search import __icon__, PACKAGE_NAME, __version__, __logger__
 
-class TXTIcon(App):
+class TextualIcon(App):
     """Will display a start bar and start button like icon in console mode to search and stop the proxy
     Textual runs on Linux, Windows and OS/X
     """
+    from textual import on
+    from textual.binding import Binding
+    from textual.screen import Screen
+    from textual.command import CommandPalette
+    from textual.app import App, ComposeResult, SystemCommand
+    from textual.widgets import Button, Label, Placeholder, Footer
+    from textual.containers import VerticalScroll, Horizontal
     
     CSS = '''
         Screen {
@@ -59,7 +59,7 @@ class TXTIcon(App):
                 yield Footer()
 
 def main():
-    TXTIcon().run()
+    TextualIcon().run()
 
 if __name__ == '__main__':
     sys.exit(main())

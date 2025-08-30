@@ -103,12 +103,12 @@ class Core:
         except ModuleNotFoundError:
             __logger__.error('Textual not found, not showing an icon')
         else:
-            from icontxt import TXTIcon
+            from icontxt import TextualIcon
             #Textual is based on asyncio so plug into the loop
             #FIXME: bring to front (libtmux?)
             try:
                 async def runicon():
-                    icon = TXTIcon()
+                    icon = TextualIcon()
                     await icon.run_async()                   
                 loop = asyncio.get_running_loop()
                 loop.create_task(runicon())
