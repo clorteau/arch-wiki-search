@@ -19,7 +19,7 @@ For instance, start it with:
 > As of today (2025-08-27) this is early development and the default wiki is \'archwiki\' because this started as a quick python script for me to load archwiki whenever needed. This tool is meant to read any useful wiki.
 
 > [!TIP]
-> The option --wiki has a number of pre-defined wikis and you\'re invited to add your own through this [templated bug request](https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md)
+> The option --wiki has a number of pre-defined wikis and you\'re invited to add your own through this [templated bug request](https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md), a [config file](https://github.com/clorteau/arch-wiki-search/blob/main/arch_wiki_search/wikis.yaml) or command-line arguments
 
 For instance:
 
