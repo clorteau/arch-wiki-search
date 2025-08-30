@@ -116,7 +116,8 @@ class CoreDescriptorFile:
 
     @staticmethod
     def get_path_pattern():
-        return os.path.join(tempfile.gettempdir(), f'{PACKAGE_NAME}.core.')
+        path = os.path.join(tempfile.gettempdir(), f'{PACKAGE_NAME}.core.')
+        return path
 
     def write_data(self):
         b = self.data.serialize()

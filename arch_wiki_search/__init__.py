@@ -33,10 +33,10 @@ class CustomFormatter(logging.Formatter):
 
     FORMATS = {
         logging.DEBUG: Colors.grey + fields + Colors.reset,
-        logging.INFO: Colors.green + '🡪' + fields + Colors.reset,
-        logging.WARNING: Colors.yellow + '⚠' + fields + Colors.reset,
-        logging.ERROR: Colors.red + '✖' + fields + Colors.reset,
-        logging.CRITICAL: Colors.bold_red + '✖✖' + fields + Colors.reset
+        logging.INFO: Colors.green + '🡪 ' + fields + Colors.reset,
+        logging.WARNING: Colors.yellow + '⚠ ' + fields + Colors.reset,
+        logging.ERROR: Colors.red + '✖ ' + fields + Colors.reset,
+        logging.CRITICAL: Colors.bold_red + '✖✖ ' + fields + Colors.reset
     }
 
     def format(self, record):

@@ -102,6 +102,7 @@ class NotifIcon(QSystemTrayIcon):
             #read port number from file name ('/tmp/arch_wiki_search.core.1234')
             regex = tmppath + r'([\d]+)$'
             for file_path in files:
+                file_path = file_path.replace('\\\\\\\\', '\\\\') # correct \\ that windows tends to return
                 match = re.search(regex, file_path)
                 port = int(match.group(1))
                 __logger__.debug(f'iconqt found core on port {port}')
