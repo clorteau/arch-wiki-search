@@ -8,9 +8,10 @@ import os
 import re
 import sys
 import glob
-import webbrowser
+import signal
 import traceback
-from PyQt6.QtCore import Qt, QPoint
+import webbrowser
+from PyQt6.QtCore import Qt, QPoint, QTimer
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont, QCursor
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout
 
@@ -18,8 +19,8 @@ from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile, MemoryCoreDe
 from arch_wiki_search import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
 
 class NotifIcon(QSystemTrayIcon):
-    """Portable notification area icon that opens a menu with #TODO: 1 entry per wiki, a
-    search function
+    """Portable notification area icon that opens a menu with #TODO: 1 entry per wiki
+    and search, quit
     PyQT6 so runs on Windows (Intel and ARM), macOS (Intel and Apple Silicon) and Linux (Intel and ARM)
     #TODO: update icon to current /favicon.ico if it exists
     #TODO: show cache size
@@ -32,8 +33,8 @@ class NotifIcon(QSystemTrayIcon):
 
     def __init__(self):     
         self.stopFlag = StopFlag()
-        # self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
-        self.coreinfofile = MemoryCoreDescriptorFile()
+        self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
+        # self.coreinfofile = MemoryCoreDescriptorFile()
         self.coreinfofile.read_data()
 
         # generate icon from utf-8 character
@@ -47,11 +48,8 @@ class NotifIcon(QSystemTrayIcon):
         
         super().__init__(self.icon)
         self.setToolTip(f'{PACKAGE_NAME} {__version__}')
-        self.local_url = f'http://localhost:{self.coreinfofile.data.port}'
-
-        header_text = f'Wiki {self.coreinfofile.data.wikiname} on {self.local_url}'
         self.menu = QMenu()
-        self.header_action = QAction('header', text=header_text)
+        self.header_action = QAction('header')
         self.header_action.triggered.connect(self._header_clicked)
         self.menu.addAction(self.header_action)
         self.search_action = QAction('Search')
@@ -62,14 +60,40 @@ class NotifIcon(QSystemTrayIcon):
         self.menu.addAction(self.exit_action)
         self.setContextMenu(self.menu)
 
+        #catch ctrl-c
+        signal.signal(signal.SIGINT, self._ctrlc)
+
+        #Refresh info from Core regularly
+        self.timer_interval = 1 #seconds
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._tick)
+        self.timer.start(self.timer_interval * 1000)
+
+    def _ctrlc(self, sig, frame):
+        self.stop()
+
+    def _tick(self):
+        """Runs every second in the main QT thread and refreshes things
+        """
+        try:
+            data = self.coreinfofile.read_data()
+            self.local_url = f'http://localhost:{data.port}'
+            if self.coreinfofile.data != None:
+                header_text = f'Wiki {data.wikiname} on http://localhost:{data.port}'
+                self.header_action.setText(header_text)
+                self.coreinfofile.data = data
+        except Exception as e:
+            __logger__.warn(f'Failed to refresh core info from file: {e}')
+
     def _loadDescriptorFile(self):
         """Find most recent core descriptor file and use it
         #TODO: one icon per active core / allow spawning more by selecting from yaml entries
+        #Used for CoreDescriptorFile, not MemoryCoreDescriptorfile
         """
         try:
             tmppath = CoreDescriptorFile.get_path_pattern()
             files = glob.glob(tmppath + '*')
-            files.sort(key=os.path.getmtime, reverse=True)
+            files.sort(key=os.path.getmtime, reverse=True) #desc. order by modified date
             #read port number from file name ('/tmp/arch_wiki_search.core.1234')
             regex = tmppath + r'([\d]+)$'
             for file_path in files:
@@ -133,7 +157,7 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except KeyboardInterrupt: #calling thread (core) was interrupted before main() completed
+    except KeyboardInterrupt: #calling thread (core) was interrupted before this main() completed
         self.stop()
 
 

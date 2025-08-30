@@ -45,7 +45,7 @@ class Core:
             if self.debug:
                 print(traceback.format_exc())
             sys.exit(-3)
-        msg = f'Serving wiki on http://localhost:{self.proxy.port} - {Colors.yellow}<ctrl-c>{Colors.green}'
+        msg = f'Serving wiki {self.wikiname} on http://localhost:{self.proxy.port} - {Colors.yellow}<ctrl-c>{Colors.green}'
         if self._notifIconStarted:
             msg += f' or {__icon__}{Colors.yellow}🡪 Exit{Colors.green}'
         msg += ' to stop'
@@ -54,7 +54,7 @@ class Core:
         await self.proxy.printcachesize()
 
         #write info in temp file for UIs to read
-        self.coreinfofile = exchange.MemoryCoreDescriptorFile()
+        self.coreinfofile = exchange.CoreDescriptorFile(self.proxy.port)
         if self.coreinfofile.data == None:
             self.coreinfofile.data = DATA()
         self.coreinfofile.data.wikiname = self.wikiname
