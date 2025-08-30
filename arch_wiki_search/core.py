@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from arch_wiki_search import exchange, __logger__, __icon__, Colors, PACKAGE_NAME
 from arch_wiki_search.cachingproxy import LazyProxy
-from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile
+from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile, DATA
 from arch_wiki_search.wikis import Wikis
 
 class Core:
@@ -55,6 +55,8 @@ class Core:
 
         #write info in temp file for UIs to read
         self.coreinfofile = exchange.MemoryCoreDescriptorFile()
+        if self.coreinfofile.data == None:
+            self.coreinfofile.data = DATA()
         self.coreinfofile.data.wikiname = self.wikiname
         self.coreinfofile.data.wikiurl = self.base_url
         self.coreinfofile.data.port = self.proxy.port
