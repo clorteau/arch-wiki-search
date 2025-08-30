@@ -11,8 +11,7 @@ It caches what you access +1 level of links if needed on the fly while you have 
 
 There's no option to cache a whole wiki at once, in order to, you know, *not* DDOS them. So what will be available offline will be what you already accessed online manually, or that you imported with --merge prior.
 
-For instance, start it with:
-
+### Start up ###
 `$ arch-wiki-search "installation guide"`
 
 > [!NOTE]
@@ -25,22 +24,37 @@ For instance:
 
 `$ arch-wiki-search --wiki=wikipedia --conv=txt "MIT license"`
 
+> [!TIP]
+>
+> The option --conv converts the pages in more readable formats:
+> raw: no conversion (but still remove binaries)
+> clean: convert to cleaner HTML (remove styles and scripts)
+> basic: convert to basic HTML
+> md: convert to markdown
+> txt: convert to plain text
 [TODO: screenshots/webms]
  
 From there, it will:
 - Spin its own little local web server that will send you the pages you request, while getting them either from:
 	+ Its own saved copy
 	+ The server
-- Therefore if you're offline and you already visited this when on-line, you will not see a difference 🤞
+
+Therefore if you're offline and you already visited this when on-line, you will not see a difference 🤞
+
 - Save/refresh the cached copy
+  
+It's a caching web proxy that caches for a very long time and simplifies the pages so it's called [LazyProxy](https://github.com/clorteau/arch-wiki-search/blob/documentation/arch_wiki_search/cachingproxy.py)
+
 - Search for the most appropriate available browser to load for your environment, such as 'elinks' if you're on SSH for instance, or the user's defined default browser if there's a desktop environment, and call it
 - If a graphical environment is available and PyQT is installed, spawn a 📚 notification area icon where you can access the wiki directly
+
+So in one command / couple clicks you get what you were looking for on your wiki in your favorite browser from your own offline copy that gets updated as, and only if, needed. If that's not your experience, [file a bug](https://github.com/clorteau/arch-wiki-search/issues).
 
 You can elso export and import whole caches for off-band sharing or inclusion in an install media for instance.
 
 More details in `--help`.
 
-This is all Python using common libraries and is a proper PyPI package itself, so it's compatible Linux (all distros), MacOS and Windows and available through all these through PyPI - again, despite the name. From there standard package helpers plug in easily. At the moment the only such package available is an Arch package through AUR. 
+This is all Python using common libraries and is a proper PyPI package itself, so it's compatible Linux (all distros), MacOS and Windows and available through all these through PyPI - again, despite the name. From there standard packaging helpers plug in easily. At the moment the only such package available is an Arch package through AUR. 
 
 ### Installation ###
 
@@ -57,7 +71,8 @@ $ pipx install arch-wiki-search
 
 ### Help ###
 ```bash
-$ usage: arch-wiki-search [-h]
+$ arch-wiki-search --help
+usage: arch-wiki-search [-h]
                           [-w {archwiki,discovery,fedorawiki,freebsdwiki,gentoowiki,manjarowiki,pythonwiki,slackdocs,wikipedia}]
                           [-u URL] [-s SEARCHSTRING] [-c {raw,clean,basic,md,txt}] [--offline]
                           [--refresh] [-v] [-x] [-m MERGE] [-ni] [--clear] [-d]
