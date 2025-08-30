@@ -1,0 +1,7 @@
+usage: arch_wiki_search [-h]
+                        [-w {archwiki,discovery,fedorawiki,freebsdwiki,gentoowiki,manjarowiki,pythonwiki,slackdocs,wikipedia}]
+                        [-u URL] [-s SEARCHSTRING] [-c {raw,clean,basic,md,txt}] [--offline] [--refresh] [-v] [-x]
+                        [-m MERGE] [-ni] [--clear] [-d]
+                        [search]
+arch_wiki_search: error: unrecognized arguments: file
+[31;1m✖✖ Could not parse 2 arguments[0m

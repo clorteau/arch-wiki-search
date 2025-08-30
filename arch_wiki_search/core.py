@@ -54,9 +54,10 @@ class Core:
         await self.proxy.printcachesize()
 
         #write info in temp file for UIs to read
-        self.coreinfofile = exchange.CoreDescriptorFile(self.proxy.port)
+        self.coreinfofile = exchange.MemoryCoreDescriptorFile()
         self.coreinfofile.data.wikiname = self.wikiname
         self.coreinfofile.data.wikiurl = self.base_url
+        self.coreinfofile.data.port = self.proxy.port
         self.coreinfofile.data.wikisearchstring = self.search_parm
         self.coreinfofile.write_data()
 

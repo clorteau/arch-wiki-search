@@ -14,14 +14,13 @@ from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont, QCursor
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout
 
-from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile
+from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile, MemoryCoreDescriptorFile
 from arch_wiki_search import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
 
 class NotifIcon(QSystemTrayIcon):
     """Portable notification area icon that opens a menu with #TODO: 1 entry per wiki, a
     search function
     PyQT6 so runs on Windows (Intel and ARM), macOS (Intel and Apple Silicon) and Linux (Intel and ARM)
-    #TODO: detect and quit when the last Core exits
     #TODO: update icon to current /favicon.ico if it exists
     #TODO: show cache size
     #TODO: add --export, --merge
@@ -33,7 +32,8 @@ class NotifIcon(QSystemTrayIcon):
 
     def __init__(self):     
         self.stopFlag = StopFlag()
-        self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
+        # self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
+        self.coreinfofile = MemoryCoreDescriptorFile()
         self.coreinfofile.read_data()
 
         # generate icon from utf-8 character

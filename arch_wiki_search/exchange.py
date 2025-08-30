@@ -147,6 +147,39 @@ class CoreDescriptorFile:
                 msg = f'Could not delete temp file {self.path}: {e}'
                 __logger__.warning(msg)
 
+class MemoryCoreDescriptorFile(CoreDescriptorFile):
+    """Info exposed by each running core for UIs to read from through a temp file
+    that exists in memory
+    """
+    def __init__(self):
+        # super().__init__(port)
+        self.maxsize = 1024 #if file gets larger than 1kB it will get written to disk
+                            #on my machine it gets to 125B
+
+    def write_data(self):
+        b = self.data.serialize()
+        try:
+            with tempfile.SpooledTemporaryFile(max_size=self.maxsize) as memfile:
+                memfile.write(b)
+                memfile.seek(0) #we'll keep overwriting
+                __logger__.debug(f'Wrote {len(b)} bytes to memory file')
+                # if memfile.size() > self.maxsize:
+                #     __logger__.warning(f'Memory file was written to disk (over {self.maxsize} bytes)')
+        except Exception as e:
+            msg = f'Failed to write to memory file: {e}'
+            __logger__.error(msg)
+
+    def read_data(self) -> DATA:
+        try:
+            with tempfile.SpooledTemporaryFile(max_size=self.maxsize) as memfile:
+                b = memfile.read()
+                self.data = DATA.deserialize(b)
+                __logger__.debug(f'Read {len(b)} bytes from memory file')
+        except Exception as e:
+            msg = f'Failed to read from memory file: {e}'
+            __logger__.error(msg)
+        return self.data
+
 class SharedMemory:
     """Data exposed by Core for the UIs to read in shared memory across process boundaries
     Not used see FIXME

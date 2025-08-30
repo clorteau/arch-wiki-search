@@ -1,0 +1,45 @@
+[38;20m The cache directory /home/northernlights/.cache/arch_wiki_search exists and is writable[0m
+[32m🡪 Spawning notification icon[0m
+[32m🡪 Serving wiki on http://localhost:47727 - [33;20m<ctrl-c>[32m or 📚[33;20m🡪 Exit[32m to stop[0m
+INFO:arch_wiki_search:Serving wiki on http://localhost:47727 - [33;20m<ctrl-c>[32m or 📚[33;20m🡪 Exit[32m to stop
+[32m🡪 [38;20mCache size: 20.30MB[0m[0m
+INFO:arch_wiki_search:[38;20mCache size: 20.30MB[0m
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/run.py", line 180, in <module>
+    main()
+    ~~~~^^
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/run.py", line 175, in main
+    asyncio.run(_main(core, search))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/run.py", line 37, in _main
+    await core.start()
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/core.py", line 57, in start
+    self.coreinfofile = exchange.MemoryCoreDescriptorFile(self.proxy.port)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/exchange.py", line 155, in __init__
+    super().__init__(self, port)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: CoreDescriptorFile.__init__() takes 2 positional arguments but 3 were given
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/iconqt.py", line 134, in <module>
+    main()
+    ~~~~^^
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/iconqt.py", line 128, in main
+    notificon = NotifIcon()
+  File "/home/northernlights/git/archwikisearch/arch_wiki_search/iconqt.py", line 36, in __init__
+    self.coreinfofile.read_data()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'read_data'
