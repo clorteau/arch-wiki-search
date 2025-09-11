@@ -51,17 +51,21 @@ class NotifIcon(QSystemTrayIcon):
         self.setToolTip(f'{PACKAGE_NAME} {__version__}')
         self.menu = QMenu()
         self.header_action = QAction('header')
+        self.header_action.setToolTip('Open this wiki on the main page')
         self.header_action.triggered.connect(self._header_clicked)
         self.menu.addAction(self.header_action)
-        self.search_action = QAction('Search')
+        self.search_action = QAction('&Search')
+        self.search_action.setToolTip('Search on this wiki')
         self.search_action.triggered.connect(self._show_search_box)
         self.menu.addAction(self.search_action)
-        self.desktop_entry_action = QAction('Create desktop application entry')
-        self.desktop_entry_action.triggered.connect(self._create_desktop_entry)
-        self.menu.addAction(self.desktop_entry_action)
-        self.exit_action = QAction('Exit')
+        self.exit_action = QAction('E&xit')
         self.exit_action.triggered.connect(self.stop)
         self.menu.addAction(self.exit_action)
+        self.menu.addSeparator()
+        self.desktop_entry_action = QAction('Create .&desktop')
+        self.desktop_entry_action.setToolTip('Create desktop application entry')
+        self.desktop_entry_action.triggered.connect(self._create_desktop_entry)
+        self.menu.addAction(self.desktop_entry_action)
         self.setContextMenu(self.menu)
 
         #catch ctrl-c
@@ -137,7 +141,7 @@ Comment=Browse and search your wiki, offline or online
                 self.header_action.setText(header_text)
                 self.coreinfofile.data = data
         except Exception as e:
-            __logger__.warn(f'Failed to refresh core info from file: {e}')
+            __logger__.warning(f'Failed to refresh core info from file: {e}')
 
     def _loadDescriptorFile(self):
         """Find most recent core descriptor file and use it
