@@ -234,7 +234,6 @@ class SharedMemory:
                     __logger__.warn(f'Failed to close shared memory block: {e}')
             if delete:
                 try:
-                    #self._sharedmem.close()
                     self._sharedmem.unlink()
                 except Exception as e:
                     if e.args[0] == 2:
