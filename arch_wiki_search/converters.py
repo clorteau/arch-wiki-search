@@ -35,7 +35,7 @@ class RawConverter:
         return hrefs
 
     def _links_to_local(self) -> str:
-        """Rewrite links by appending them to our local proxy
+        """Rewrite links by appending them to our local proxy's address
         """
         return self.text.replace(self.base_url, f'http://localhost:{self.port}')
 
@@ -61,7 +61,7 @@ class RawConverter:
 
 class CleanHTMLConverter(RawConverter):
     async def convert(self):
-        """Cleans up javascript, styles and excessive formattive format
+        """Cleans up javascript, styles and excessive formatting
         """
         warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
         try:

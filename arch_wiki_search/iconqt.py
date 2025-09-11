@@ -8,21 +8,20 @@ import os
 import re
 import sys
 import glob
-import webbrowser
+import uuid
+import signal
 import traceback
-from PyQt6.QtCore import Qt, QPoint
+import webbrowser
+from PyQt6.QtCore import Qt, QPoint, QTimer
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont, QCursor
-from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout, QMessageBox, QPushButton
 
-from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile
+from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile, MemoryCoreDescriptorFile
 from arch_wiki_search import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
 
 class NotifIcon(QSystemTrayIcon):
-    """Portable notification area icon that opens a menu with #TODO: 1 entry per wiki, a
-    search function
+    """Portable notification area icon that opens a menu with entries to open it, search, quit...
     PyQT6 so runs on Windows (Intel and ARM), macOS (Intel and Apple Silicon) and Linux (Intel and ARM)
-    #TODO: detect and quit when the last Core exits
-    #TODO: update icon to current /favicon.ico if it exists
     #TODO: show cache size
     #TODO: add --export, --merge
     """
@@ -33,8 +32,11 @@ class NotifIcon(QSystemTrayIcon):
 
     def __init__(self):     
         self.stopFlag = StopFlag()
-        self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
-        self.coreinfofile.read_data()
+        self.coreinfofile = self._loadDescriptorFile()
+        if self.coreinfofile == None:
+            __logger__.warn('Found no data in core info file')
+        else:
+            self.coreinfofile.read_data()
 
         # generate icon from utf-8 character
         pixmap = QPixmap(64, 64) #TODO: see how portable that looks
@@ -47,39 +49,116 @@ class NotifIcon(QSystemTrayIcon):
         
         super().__init__(self.icon)
         self.setToolTip(f'{PACKAGE_NAME} {__version__}')
-        self.local_url = f'http://localhost:{self.coreinfofile.data.port}'
-
-        header_text = f'Wiki {self.coreinfofile.data.wikiname} on {self.local_url}'
         self.menu = QMenu()
-        self.header_action = QAction('header', text=header_text)
+        self.header_action = QAction('header')
         self.header_action.triggered.connect(self._header_clicked)
         self.menu.addAction(self.header_action)
         self.search_action = QAction('Search')
         self.search_action.triggered.connect(self._show_search_box)
         self.menu.addAction(self.search_action)
+        self.desktop_entry_action = QAction('Create desktop application entry')
+        self.desktop_entry_action.triggered.connect(self._create_desktop_entry)
+        self.menu.addAction(self.desktop_entry_action)
         self.exit_action = QAction('Exit')
         self.exit_action.triggered.connect(self.stop)
         self.menu.addAction(self.exit_action)
         self.setContextMenu(self.menu)
 
+        #catch ctrl-c
+        signal.signal(signal.SIGINT, self._ctrlc)
+
+        #Refresh info from Core regularly
+        self.timer_interval = 1 #seconds
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._tick)
+        self.timer.start(self.timer_interval * 1000)
+
+    def _create_desktop_entry(self):
+        reply = QMessageBox.question(None, 'Confirmation', 
+                                      'Create an application entry for this wiki?\nYou will be able to find it in your application menu.', 
+                                      QMessageBox.StandardButton.Yes | 
+                                      QMessageBox.StandardButton.No, 
+                                      QMessageBox.StandardButton.No)
+
+        if reply == QMessageBox.StandardButton.Yes:
+            try:
+                cmd = PACKAGE_NAME.replace('_', '-')
+                data = self.coreinfofile.data
+                name = ''
+                if data.wikiname != '':
+                    cmd += f' --wiki={data.wikiname}'
+                    name = data.wikiname.capitalize()
+                else:
+                    cmd += f' --url=\'{data.wikiurl}\''
+                    cmd += f' --searchstring=\'{data.wikisearchstring}\''
+                    name = data.wikiurl
+                name = f'{name} ({PACKAGE_NAME.replace('_', '-')})'
+                s = f'''
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name={name}
+Exec={cmd}
+Icon=ebook
+Terminal=false
+Categories=Education
+Comment=Browse and search your wiki, offline or online
+'''
+                appdir = ''
+                if os.name == 'posix': 
+                    appdir = os.path.join(os.path.expanduser('~'), '.local', 'share', 'applications')
+                elif os.name == 'nt':
+                    raise Exception('Not supported on Windows yet') #TODO: Windows start menu entry
+                filename = f'com.github.clorteau.arch-wiki-search-{uuid.uuid4()}.desktop'
+                target = os.path.join(appdir, filename)
+                with open (target, 'w') as f:
+                    f.write(s.strip())
+                msg = f'Created file {target}'
+                __logger__.info(msg)
+                #QMessageBox.information(None, 'Done', msg)
+            except Exception as e:
+                msg = f'Failed to create desktop entry file: {e}'
+                __logger__.error(msg)
+                QMessageBox.warning(None, 'Error', msg)
+
+    def _ctrlc(self, sig, frame):
+        self.stop()
+
+    def _tick(self):
+        """Runs every second in the main QT thread and refreshes things
+        """
+        try:
+            if self.coreinfofile == None:
+                self.coreinfofile = self._loadDescriptorFile()
+            data = self.coreinfofile.read_data()
+            self.local_url = f'http://localhost:{data.port}'
+            if self.coreinfofile.data != None:
+                header_text = f'Wiki {data.wikiname} on http://localhost:{data.port}'
+                self.header_action.setText(header_text)
+                self.coreinfofile.data = data
+        except Exception as e:
+            __logger__.warn(f'Failed to refresh core info from file: {e}')
+
     def _loadDescriptorFile(self):
         """Find most recent core descriptor file and use it
         #TODO: one icon per active core / allow spawning more by selecting from yaml entries
+        #Used for CoreDescriptorFile, not MemoryCoreDescriptorfile
         """
         try:
             tmppath = CoreDescriptorFile.get_path_pattern()
             files = glob.glob(tmppath + '*')
-            files.sort(key=os.path.getmtime, reverse=True)
+            files.sort(key=os.path.getmtime, reverse=True) #desc. order by modified date
             #read port number from file name ('/tmp/arch_wiki_search.core.1234')
             regex = tmppath + r'([\d]+)$'
             for file_path in files:
+                file_path = file_path.replace('\\\\\\\\', '\\\\') # correct \\ that windows tends to return
                 match = re.search(regex, file_path)
                 port = int(match.group(1))
                 __logger__.debug(f'iconqt found core on port {port}')
                 #TODO: try to open a socket to the port to confirm the core is still there
-                return CoreDescriptorFile(port) #TODO: find all cores not just the most recently active
+                return CoreDescriptorFile(port)
         except Exception as e:
-            msg = f'Failed to find core description files in {tmppath}* - can\'t spawn QT icon'
+            msg = f'Failed to find core description files in {tmppath} - can\'t spawn QT icon'
             __logger__.error(msg)
             return None
 
@@ -117,16 +196,23 @@ class NotifIcon(QSystemTrayIcon):
         self.search_widget.show()
 
     def stop(self):
-        self.stopFlag.write(True) #tell proxying process to stop
+        try:
+            self.stopFlag.write(True) #tell proxying process to stop
+        except Exception as e:
+            msg = f'Failed to write stop flag from iconqt: {e}'
+            __logger__.error(msg)
         QApplication.quit()
         
 def main():
     qt6app = QApplication(sys.argv)
     notificon = NotifIcon()
     notificon.show()
-    #TODO: loop and quit if the stop flag file was deleted, meaning the core quit on us
     qt6app.exec()
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt: #calling thread (core) was interrupted before this main() completed
+        self.stop()
+
 

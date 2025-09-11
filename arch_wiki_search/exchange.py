@@ -67,8 +67,12 @@ class StopFlag:
             try:
                 os.remove(self.filePath)
             except Exception as e:
-                msg = f'Could not delete temp file {self.filePath}: {e}' #might block all future starts if not delted
-                __logger__.error(msg)
+                if e.args[0] == 2:
+                    # err code 2 = not found so it was already deleted - probably by the core when quitting
+                    __logger__.debug('Found no stop flag to delete when quitting')
+                else:
+                    msg = f'Could not delete temp file {self.filePath}: {e}' #might block all future starts if not delted
+                    __logger__.error(msg)
 
     def __init__(self):
         self.filePath = os.path.join(tempfile.gettempdir(), f'{PACKAGE_NAME}.stopflag')
@@ -112,7 +116,8 @@ class CoreDescriptorFile:
 
     @staticmethod
     def get_path_pattern():
-        return os.path.join(tempfile.gettempdir(), f'{PACKAGE_NAME}.core.')
+        path = os.path.join(tempfile.gettempdir(), f'{PACKAGE_NAME}.core.')
+        return path
 
     def write_data(self):
         b = self.data.serialize()
@@ -142,6 +147,39 @@ class CoreDescriptorFile:
             except Exception as e:
                 msg = f'Could not delete temp file {self.path}: {e}'
                 __logger__.warning(msg)
+
+class MemoryCoreDescriptorFile(CoreDescriptorFile):
+    """Info exposed by each running core for UIs to read from through a temp file
+    that exists in memory
+    """
+    def __init__(self):
+        # super().__init__(port)
+        self.maxsize = 1024 #if file gets larger than 1kB it will get written to disk
+                            #on my machine it gets to 125B
+
+    def write_data(self):
+        b = self.data.serialize()
+        try:
+            with tempfile.SpooledTemporaryFile(max_size=self.maxsize) as memfile:
+                memfile.write(b)
+                memfile.seek(0) #we'll keep overwriting
+                __logger__.debug(f'Wrote {len(b)} bytes to memory file')
+                # if memfile.size() > self.maxsize:
+                #     __logger__.warning(f'Memory file was written to disk (over {self.maxsize} bytes)')
+        except Exception as e:
+            msg = f'Failed to write to memory file: {e}'
+            __logger__.error(msg)
+
+    def read_data(self) -> DATA:
+        try:
+            with tempfile.SpooledTemporaryFile(max_size=self.maxsize) as memfile:
+                b = memfile.read()
+                self.data = DATA.deserialize(b)
+                __logger__.debug(f'Read {len(b)} bytes from memory file')
+        except Exception as e:
+            msg = f'Failed to read from memory file: {e}'
+            __logger__.error(msg)
+        return self.data
 
 class SharedMemory:
     """Data exposed by Core for the UIs to read in shared memory across process boundaries
@@ -196,7 +234,6 @@ class SharedMemory:
                     __logger__.warn(f'Failed to close shared memory block: {e}')
             if delete:
                 try:
-                    #self._sharedmem.close()
                     self._sharedmem.unlink()
                 except Exception as e:
                     if e.args[0] == 2:

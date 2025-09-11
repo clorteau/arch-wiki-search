@@ -68,6 +68,10 @@ $ yay -S arch-wiki-search
 $ pipx install arch-wiki-search
 ```
 
+#### From the sources: ####
+```bash
+$ pipx install .
+```
 
 ### Help ###
 ```bash

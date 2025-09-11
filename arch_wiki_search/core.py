@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from arch_wiki_search import exchange, __logger__, __icon__, Colors, PACKAGE_NAME
 from arch_wiki_search.cachingproxy import LazyProxy
-from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile
+from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile, DATA
 from arch_wiki_search.wikis import Wikis
 
 class Core:
@@ -45,7 +45,7 @@ class Core:
             if self.debug:
                 print(traceback.format_exc())
             sys.exit(-3)
-        msg = f'Serving wiki on http://localhost:{self.proxy.port} - {Colors.yellow}<ctrl-c>{Colors.green}'
+        msg = f'Serving wiki {self.wikiname} on http://localhost:{self.proxy.port} - {Colors.yellow}<ctrl-c>{Colors.green}'
         if self._notifIconStarted:
             msg += f' or {__icon__}{Colors.yellow}🡪 Exit{Colors.green}'
         msg += ' to stop'
@@ -55,8 +55,11 @@ class Core:
 
         #write info in temp file for UIs to read
         self.coreinfofile = exchange.CoreDescriptorFile(self.proxy.port)
+        if self.coreinfofile.data == None:
+            self.coreinfofile.data = DATA()
         self.coreinfofile.data.wikiname = self.wikiname
         self.coreinfofile.data.wikiurl = self.base_url
+        self.coreinfofile.data.port = self.proxy.port
         self.coreinfofile.data.wikisearchstring = self.search_parm
         self.coreinfofile.write_data()
 
@@ -67,10 +70,14 @@ class Core:
         await self._go(url_path)
 
     def spawnIcon(self):
-        if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
-            self.spawnIconGUI()
-        elif not self.noicon: #No GUI, no --noicon
-            self.spawnIconTUI()
+        if os.name == 'posix': 
+            if (not self.noicon) and ('DISPLAY' in os.environ): #GUI, no --noicon
+                self.spawnIconGUI()
+            elif not self.noicon: #No GUI, no --noicon
+                return #not working right
+                self.spawnIconTUI()
+        elif (os.name == 'nt') and not self.noicon:  #Windows (doesn't declare DISPLAY env var), no --noicon
+                self.spawnIconGUI()
 
     def spawnIconGUI(self):
         try:
@@ -81,27 +88,25 @@ class Core:
             __logger__.info('Spawning notification icon')
             # run the QT app loop in a subprocess
             try:
-                # path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
-                #process = subprocess.Popen(['python', path]) #TODO: pass --debug
-                process = subprocess.Popen(['python', '-m', f'{PACKAGE_NAME}.iconqt'])
+                process = subprocess.Popen(['python', '-m', f'{PACKAGE_NAME}.iconqt']) #TODO pass debug
                 self._notifIconStarted = True
             except Exception as e:
                 msg = f'Failed to start notification icon: {e}'
                 __logger__.error(msg)
 
-    def spawIconTUI(self):
+    def spawnIconTUI(self):
         return #not working right see FIXME
         try:
             from textual.app import App
         except ModuleNotFoundError:
             __logger__.error('Textual not found, not showing an icon')
         else:
-            from icontxt import TXTIcon
+            from icontxt import TextualIcon
             #Textual is based on asyncio so plug into the loop
             #FIXME: bring to front (libtmux?)
             try:
                 async def runicon():
-                    icon = TXTIcon()
+                    icon = TextualIcon()
                     await icon.run_async()                   
                 loop = asyncio.get_running_loop()
                 loop.create_task(runicon())

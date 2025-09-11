@@ -7,12 +7,10 @@ License: MIT
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: arg to change number of days before cache expiry
-#TODO: prompt while serving to search other terms - getting there
 #TODO: read command line args from conf file
 #TODO: option to select language
 #TODO: test mode
 #TODO: refresh mode
-#TODO: desktop entry, notification icon with menu entry per yaml entry - getting there
 #TODO: converters: keep only article content (tag main, id=content?)
 #TODO: text mode corner icon - maybe try TK or curses instead of Textual (looks great but no multiplexing/overlaying?)
 
@@ -20,6 +18,12 @@ import os
 import sys
 import asyncio
 import argparse
+
+try:
+    import arch_wiki_search
+except ModuleNotFoundError:
+    print('I\'m part of a package, I need to be loaded as such then run as a script: \'python -m arch_wiki_search.run\'')
+    sys.exit(-1)
 
 from arch_wiki_search import __version__, __url__, __newwikirequesturl__, __logger__, __icon__, Colors, PACKAGE_NAME
 from arch_wiki_search.exchange import ZIP

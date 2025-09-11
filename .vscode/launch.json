@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "run with args",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "arch_wiki_search.run",
+      "args": "${command:pickArgs}"
+    },
+  ],
+}

@@ -9,7 +9,6 @@ __name__ = 'arch_wiki_search'
 PACKAGE_NAME = 'arch_wiki_search'
 __author__ = 'Clem Lorteau'
 __license__ = 'MIT'
-
 __contact__ = '@northernlights:matrix.lorteau.fr'
 __url__ = 'https://github.com/clorteau/arch-wiki-search'
 __newwikirequesturl__ = 'https://github.com/clorteau/arch-wiki-search/issues/new?template=new-wiki.md'
@@ -28,15 +27,14 @@ class Colors:
     reset = '\x1b[0m'
 
 class CustomFormatter(logging.Formatter):
-    # format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)'
     fields = ' %(message)s'
 
     FORMATS = {
         logging.DEBUG: Colors.grey + fields + Colors.reset,
-        logging.INFO: Colors.green + '🡪' + fields + Colors.reset,
-        logging.WARNING: Colors.yellow + '⚠' + fields + Colors.reset,
-        logging.ERROR: Colors.red + '✖' + fields + Colors.reset,
-        logging.CRITICAL: Colors.bold_red + '✖✖' + fields + Colors.reset
+        logging.INFO: Colors.green + '🡪 ' + fields + Colors.reset,
+        logging.WARNING: Colors.yellow + '⚠ ' + fields + Colors.reset,
+        logging.ERROR: Colors.red + '✖ ' + fields + Colors.reset,
+        logging.CRITICAL: Colors.bold_red + '✖✖ ' + fields + Colors.reset
     }
 
     def format(self, record):
