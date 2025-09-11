@@ -7,12 +7,10 @@ License: MIT
 #TODO: conv = darkhtml - custom css for dark mode
 #TODO: conv = custom css - user supplied css
 #TODO: arg to change number of days before cache expiry
-#TODO: prompt while serving to search other terms - getting there
 #TODO: read command line args from conf file
 #TODO: option to select language
 #TODO: test mode
 #TODO: refresh mode
-#TODO: desktop entry, notification icon with menu entry per yaml entry - getting there
 #TODO: converters: keep only article content (tag main, id=content?)
 #TODO: text mode corner icon - maybe try TK or curses instead of Textual (looks great but no multiplexing/overlaying?)
 

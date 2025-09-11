@@ -88,9 +88,7 @@ class Core:
             __logger__.info('Spawning notification icon')
             # run the QT app loop in a subprocess
             try:
-                # path = os.path.dirname(os.path.realpath(__file__)) + '/iconqt.py'
-                #process = subprocess.Popen(['python', path]) #TODO: pass --debug
-                process = subprocess.Popen(['python', '-m', f'{PACKAGE_NAME}.iconqt'])
+                process = subprocess.Popen(['python', '-m', f'{PACKAGE_NAME}.iconqt']) #TODO pass debug
                 self._notifIconStarted = True
             except Exception as e:
                 msg = f'Failed to start notification icon: {e}'

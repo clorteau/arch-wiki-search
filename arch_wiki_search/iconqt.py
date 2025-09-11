@@ -8,21 +8,20 @@ import os
 import re
 import sys
 import glob
+import uuid
 import signal
 import traceback
 import webbrowser
 from PyQt6.QtCore import Qt, QPoint, QTimer
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont, QCursor
-from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QLineEdit, QWidget, QVBoxLayout, QMessageBox, QPushButton
 
 from arch_wiki_search.exchange import StopFlag, CoreDescriptorFile, MemoryCoreDescriptorFile
 from arch_wiki_search import PACKAGE_NAME, __version__, __icon__, __logger__, Colors
 
 class NotifIcon(QSystemTrayIcon):
-    """Portable notification area icon that opens a menu with #TODO: 1 entry per wiki
-    and search, quit
+    """Portable notification area icon that opens a menu with entries to open it, search, quit...
     PyQT6 so runs on Windows (Intel and ARM), macOS (Intel and Apple Silicon) and Linux (Intel and ARM)
-    #TODO: update icon to current /favicon.ico if it exists
     #TODO: show cache size
     #TODO: add --export, --merge
     """
@@ -33,8 +32,7 @@ class NotifIcon(QSystemTrayIcon):
 
     def __init__(self):     
         self.stopFlag = StopFlag()
-        # self.coreinfofile = MemoryCoreDescriptorFile()
-        self.coreinfofile = self._loadDescriptorFile() #TODO: load all files
+        self.coreinfofile = self._loadDescriptorFile()
         if self.coreinfofile == None:
             __logger__.warn('Found no data in core info file')
         else:
@@ -58,6 +56,9 @@ class NotifIcon(QSystemTrayIcon):
         self.search_action = QAction('Search')
         self.search_action.triggered.connect(self._show_search_box)
         self.menu.addAction(self.search_action)
+        self.desktop_entry_action = QAction('Create desktop application entry')
+        self.desktop_entry_action.triggered.connect(self._create_desktop_entry)
+        self.menu.addAction(self.desktop_entry_action)
         self.exit_action = QAction('Exit')
         self.exit_action.triggered.connect(self.stop)
         self.menu.addAction(self.exit_action)
@@ -71,6 +72,54 @@ class NotifIcon(QSystemTrayIcon):
         self.timer = QTimer()
         self.timer.timeout.connect(self._tick)
         self.timer.start(self.timer_interval * 1000)
+
+    def _create_desktop_entry(self):
+        reply = QMessageBox.question(None, 'Confirmation', 
+                                      'Create an application entry for this wiki?\nYou will be able to find it in your application menu.', 
+                                      QMessageBox.StandardButton.Yes | 
+                                      QMessageBox.StandardButton.No, 
+                                      QMessageBox.StandardButton.No)
+
+        if reply == QMessageBox.StandardButton.Yes:
+            try:
+                cmd = PACKAGE_NAME.replace('_', '-')
+                data = self.coreinfofile.data
+                name = ''
+                if data.wikiname != '':
+                    cmd += f' --wiki={data.wikiname}'
+                    name = data.wikiname.capitalize()
+                else:
+                    cmd += f' --url=\'{data.wikiurl}\''
+                    cmd += f' --searchstring=\'{data.wikisearchstring}\''
+                    name = data.wikiurl
+                name = f'{name} ({PACKAGE_NAME.replace('_', '-')})'
+                s = f'''
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name={name}
+Exec={cmd}
+Icon=ebook
+Terminal=false
+Categories=Education
+Comment=Browse and search your wiki, offline or online
+'''
+                appdir = ''
+                if os.name == 'posix': 
+                    appdir = os.path.join(os.path.expanduser('~'), '.local', 'share', 'applications')
+                elif os.name == 'nt':
+                    raise Exception('Not supported on Windows yet') #TODO: Windows start menu entry
+                filename = f'com.github.clorteau.arch-wiki-search-{uuid.uuid4()}.desktop'
+                target = os.path.join(appdir, filename)
+                with open (target, 'w') as f:
+                    f.write(s.strip())
+                msg = f'Created file {target}'
+                __logger__.info(msg)
+                #QMessageBox.information(None, 'Done', msg)
+            except Exception as e:
+                msg = f'Failed to create desktop entry file: {e}'
+                __logger__.error(msg)
+                QMessageBox.warning(None, 'Error', msg)
 
     def _ctrlc(self, sig, frame):
         self.stop()
@@ -107,9 +156,9 @@ class NotifIcon(QSystemTrayIcon):
                 port = int(match.group(1))
                 __logger__.debug(f'iconqt found core on port {port}')
                 #TODO: try to open a socket to the port to confirm the core is still there
-                return CoreDescriptorFile(port) #TODO: find all cores not just the most recently active
+                return CoreDescriptorFile(port)
         except Exception as e:
-            msg = f'Failed to find core description files in {tmppath}* - can\'t spawn QT icon'
+            msg = f'Failed to find core description files in {tmppath} - can\'t spawn QT icon'
             __logger__.error(msg)
             return None
 
